@@ -36,7 +36,20 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
 - `faixa_etaria == 0` = "menos de 1 ano".
 - Ambiente: venv .venv (Python 3.14); `pip.exe` é bloqueado pelo Device Guard da
   organização nesta máquina — usar `python -m pip install <pacote>`.
+- 5 vacinas finais do MVP, com o nome exato da coluna `imunizante`: BCG,
+  Poliomielite inativada, Pentavalente, Tríplice Viral, Hepatite B (0 a 30 dias).
+- Checagem de duplicatas: 0 duplicatas em (`ibge6`, `ano`, `imunizante`) após o filtro
+  (`ultima_dose == True`, `reforco == 0`, ano 2014-2024, 5 vacinas do MVP).
+- Pendência aberta: ano 2024 não aparece em nenhuma linha após o filtro. Hipótese
+  principal: o VacinaBR ainda não tem dado de 2024. A confirmar olhando o `ano` no
+  CSV bruto sem filtro.
+- Pendência aberta: "Hepatite B (0 a 30 dias)" não aparece após o filtro de
+  `ultima_dose`/`reforco`. Hipótese: vacina de dose única não segue a mesma convenção
+  dessas flags. A investigar.
+- Comando pra registrar o kernel do notebook no `.venv`:
+  `python -m ipykernel install --user --name=picadinhas --display-name "Picadinhas (.venv)"`.
 
 ## Roadmap (7 dias)
-Dia 1 Setup ✅ | Dia 2 Coleta ✅ | Dia 3 Limpeza & EDA (EM ANDAMENTO) |
+Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
+Dia 3 Limpeza & EDA (EM ANDAMENTO — filtro feito, 2 pendências de investigação antes de salvar o CSV processado) |
 Dia 4 Clustering | Dia 5 Destaques | Dia 6 Frontend | Dia 7 Deploy

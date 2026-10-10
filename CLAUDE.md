@@ -40,7 +40,11 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
 - Período final: 2014 a 2023 (2024 não existe no dado bruto pra nenhuma das 5 vacinas
   do MVP — só HPV foi atualizado até agora).
 - `dose_de_referencia` existe no CSV mas NÃO está no dicionário — evitar usar até confirmar.
-- `cobertura` pode passar de 100% (população-alvo é estimativa do IBGE) — tratamento pendente.
+- `cobertura` pode passar de 100% (população-alvo é estimativa do IBGE, não contagem
+  exata — isso é normal no dado brasileiro, não é erro). A partir de agora,
+  `data/processed/serie_temporal_mvp.csv` tem as duas colunas: `cobertura` (valor bruto,
+  preservado intacto pra quem for auditar) e `cobertura_capada` (`clip(0, 100)`) — use
+  `cobertura_capada` como padrão em gráficos e modelos daqui pra frente.
 - `faixa_etaria == 0` = "menos de 1 ano".
 - Ambiente: venv .venv (Python 3.14); `pip.exe` é bloqueado pelo Device Guard da
   organização nesta máquina — usar `python -m pip install <pacote>`.
@@ -59,6 +63,9 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
-Dia 3 Limpeza & EDA (Parte 1 — filtragem segura + CSV limpo em data/processed/ ✅
-concluída; seguem as próximas partes do dia) |
-Dia 4 Clustering | Dia 5 Destaques | Dia 6 Frontend | Dia 7 Deploy
+Dia 3 Limpeza & EDA ✅ concluído (Parte 1 filtragem segura + CSV limpo; Parte 2
+validações contra o dicionário; Parte 3 série temporal com grid completo
+ibge6×ano×vacina e buracos explícitos em `data/processed/serie_temporal_mvp.csv`,
+278.500 linhas; Parte 4 primeiros gráficos — evolução temporal nacional por vacina
+e comparação entre estados em 2023, salvos em `notebooks/`) |
+Dia 4 Clustering (próximo passo) | Dia 5 Destaques | Dia 6 Frontend | Dia 7 Deploy

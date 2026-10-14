@@ -158,6 +158,22 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
   comunidade no grafo e qualquer previsão baseada nele ficam fora do escopo dos
   5 dias — possível iteração futura do projeto, não implementar sem decisão
   explícita.
+- Dia 5 Parte 3 — frase explicativa combinando os dois sinais (notebook03):
+  cada destaque de queda atípica (Parte 2) é cruzado com `isolamento_similaridade`
+  (Parte 1), convertido em **percentil dentro dos 5.570 municípios** (não só dos
+  1.492 destaques — senão o percentil perderia o sentido de "comparado com o
+  Brasil todo"). Regra: município no **top 10%** de isolamento (percentil >= 90)
+  → frase aponta causa mais local/específica; caso contrário → frase aponta que
+  pode ser um padrão mais amplo (os vizinhos do grafo também merecem olhar). O
+  corte de 10% é deliberadamente mais permissivo que o top 30 (~0,5%) usado no
+  gráfico da Parte 1 — aqui o objetivo é classificar cada destaque, não achar só
+  os casos mais extremos. Função `gerar_frase()` monta a frase em português por
+  linha. Tabela completa (1.492 casos + `nome_cluster`, `isolamento_similaridade`,
+  `percentil_isolamento`, `frase`) salva em `data/processed/destaques_completo.csv`.
+  Resultado: 387 casos (25,9%) caem em "isolado", 1.105 (74,1%) em "padrão mais
+  amplo" — a maioria dos destaques tem vizinhos parecidos no grafo, então vale a
+  pena checar se o mesmo problema aparece nos municípios próximos antes de tratar
+  como caso único.
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
@@ -170,10 +186,11 @@ Dia 4 Clustering ✅ concluído — features (Parte 1), padronização + escolha
 cotovelo/silhouette (Partes 2-3), KMeans final com K=3 e 3 clusters nomeados (Parte 4,
 ver acima: "Cobertura alta e estável" 2.860 municípios, "Cobertura baixa, em
 recuperação" 1.391, "Cobertura em queda e instável" 1.319) |
-Dia 5 Destaques ✅ concluído — Parte 1: nomes dos municípios via API do IBGE +
-grafo de similaridade k-NN com K=5 e `isolamento_similaridade`. Parte 2: queda
-atípica por z-score calculado por ano (limiar z < -2), 1.492 casos em
-`data/processed/destaques_quedas_atipicas.csv` (ver detalhes acima;
-`notebooks/notebook03_destaques.ipynb`). Próximo passo: Parte 3, montar a
-frase explicativa de cada destaque |
+Dia 5 Destaques ✅ concluído (`notebooks/notebook03_destaques.ipynb`) — Parte 1:
+nomes dos municípios via API do IBGE + grafo de similaridade k-NN (K=5) com
+`isolamento_similaridade` em `data/processed/clusters_municipios_mvp.csv`. Parte 2:
+queda atípica por z-score calculado por ano (limiar z < -2), 1.492 casos em
+`data/processed/destaques_quedas_atipicas.csv`. Parte 3: frase explicativa
+combinando os dois sinais (perfil isolado vs. padrão mais amplo), tabela final em
+`data/processed/destaques_completo.csv` (ver detalhes de cada parte acima) |
 Dia 6 Frontend | Dia 7 Deploy

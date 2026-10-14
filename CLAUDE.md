@@ -111,6 +111,53 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     apesar de aparecer no topo do ranking pontual de 2023, cai majoritariamente em
     "baixa, em recuperação" — ou seja, partiu de um nível baixo e vem subindo rápido,
     enquanto CE/MT/TO (também top-2023) caem majoritariamente em "alta e estável".
+- Dia 5 — nomes dos municípios: nunca tínhamos buscado o nome, só o `ibge6` (6
+  dígitos). Fonte: API pública do IBGE
+  (`servicodados.ibge.gov.br/api/v1/localidades/municipios`), que devolve código de
+  7 dígitos (6 + dígito verificador). Confirmado empiricamente (notebook03,
+  Etapa A, Passo 2) que `ibge6 == codigo_7_digitos[:6]` é 100% seguro — 0 casos de
+  ambiguidade nos 5.571 municípios da API, e spot-check com 5 capitais bateu
+  certinho. A API comprime a resposta com gzip mesmo sem pedir — precisa
+  `gzip.decompress` manual antes do `json.loads`. Tabela salva em
+  `data/raw/municipios_nomes.csv` (vai pro git, é pequena) e `nome_municipio`
+  juntado em `clusters_municipios_mvp.csv` sem perder nenhuma das 5.570 linhas.
+- Dia 5 — grafo de similaridade entre municípios (notebook03, Etapa B): k-NN graph
+  com **K=5** vizinhos mais próximos por distância euclidiana nas 3 features de
+  clustering padronizadas (mesmo `StandardScaler` em numpy puro do Dia 4). K=5
+  escolhido por escopo (pequeno o bastante pra vizinhança local, grande o bastante
+  pra não depender de 1 vizinho acidental) — não recalculado/testado como o K do
+  KMeans. Distâncias calculadas em lotes de 500 municípios (evita montar a matriz
+  5570×5570 inteira de uma vez). Arestas salvas em
+  `data/processed/grafo_similaridade_arestas.csv`. `isolamento_similaridade`
+  (distância média aos 5 vizinhos — quanto maior, mais atípico no espaço de
+  features) juntado em `clusters_municipios_mvp.csv`. Os 30 municípios mais
+  isolados concentram-se nos clusters "baixa, em recuperação" (17) e "queda e
+  instável" (13) — **nenhum** no cluster "alta e estável", o que faz sentido
+  porque esse cluster tem a menor variabilidade por definição.
+- `networkx` instalado sem o problema do scipy/sklearn (lib pura Python, DLLs não
+  bloqueadas pelo Device Guard). Pacotes `nbconvert`/`nbformat`/`nbclient` também
+  instalados sem problema, usados pra executar o notebook via
+  `python -m nbconvert --to notebook --execute --inplace` e gerar os outputs/PNGs
+  reais em vez de deixar células sem execução.
+- Dia 5 Parte 2 — definição de "queda atípica" (notebook03, z-score por ano):
+  calculada a série "cobertura geral do município por ano" (mesma lógica do Dia 4
+  Parte 1 — média de `cobertura_capada` entre as 5 vacinas, ignorando NaN) e o
+  delta ano a ano (só entre anos consecutivos com os dois valores presentes, sem
+  interpolar). O z-score de cada (município, ano) compara o delta daquele
+  município com a média/desvio padrão do delta de TODOS os municípios **naquele
+  mesmo ano** (não com o histórico do próprio município) — decisão deliberada pra
+  neutralizar choques nacionais (ex: pandemia) e só destacar quem caiu muito mais
+  que os pares no mesmo contexto. Limiar: **z < -2**. Resultado: 1.492 casos,
+  salvos em `data/processed/destaques_quedas_atipicas.csv` (`ibge6`,
+  `nome_municipio`, `uf`, `ano`, `delta`, `z_score`, `cluster`). Validação: anos de
+  pandemia (2020-2022) ficaram com 32,6% dos casos, contra 33,3% esperado por
+  distribuição uniforme entre os 9 anos — ou seja, a normalização por ano
+  funcionou, a pandemia não domina os destaques.
+- Escopo do grafo de similaridade (decisão confirmada no Dia 5 Parte 2): fica
+  **só** como gráfico + `isolamento_similaridade` por enquanto. Detecção de
+  comunidade no grafo e qualquer previsão baseada nele ficam fora do escopo dos
+  5 dias — possível iteração futura do projeto, não implementar sem decisão
+  explícita.
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
@@ -123,5 +170,10 @@ Dia 4 Clustering ✅ concluído — features (Parte 1), padronização + escolha
 cotovelo/silhouette (Partes 2-3), KMeans final com K=3 e 3 clusters nomeados (Parte 4,
 ver acima: "Cobertura alta e estável" 2.860 municípios, "Cobertura baixa, em
 recuperação" 1.391, "Cobertura em queda e instável" 1.319) |
-Dia 5 Destaques (próximo passo — detecção de município com queda atípica via z-score) |
+Dia 5 Destaques ✅ concluído — Parte 1: nomes dos municípios via API do IBGE +
+grafo de similaridade k-NN com K=5 e `isolamento_similaridade`. Parte 2: queda
+atípica por z-score calculado por ano (limiar z < -2), 1.492 casos em
+`data/processed/destaques_quedas_atipicas.csv` (ver detalhes acima;
+`notebooks/notebook03_destaques.ipynb`). Próximo passo: Parte 3, montar a
+frase explicativa de cada destaque |
 Dia 6 Frontend | Dia 7 Deploy

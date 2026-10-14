@@ -1,4 +1,5 @@
 data/raw/*.csv
+!data/raw/municipios_nomes.csv
 data/raw/*.zip
 __pycache__/
 *.pyc

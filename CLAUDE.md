@@ -174,6 +174,30 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
   amplo" — a maioria dos destaques tem vizinhos parecidos no grafo, então vale a
   pena checar se o mesmo problema aparece nos municípios próximos antes de tratar
   como caso único.
+- Dia 6 — malha geográfica + dados por município pros 27 estados (generalizando o
+  pipeline já validado pra Paraíba): geojson bruto de cada estado via
+  `tbrugz/geodata-br` (`geojs-{codigo_ibg}-mun.json`) → topojson simplificado
+  (`topojson-server`/`topojson-simplify`, tolerância 0.00005, igual ao de PB) →
+  projeção Mercator (`d3-geo`) → paths SVG por município. Generalização em relação
+  ao script original de PB: **tamanho do canvas agora é calculado por estado**
+  (lado maior = 640px, lado menor proporcional à forma real do estado, medida
+  projetando primeiro num quadrado grande e lendo o bounding box resultante) —
+  em vez do `520×460` fixo original, que distorceria a proporção visual de
+  estados muito alongados (ex: AM) ou muito compactos (ex: DF).
+  - JSON de dados por município (`{uf}_municipios.json`) generalizado a partir dos
+    CSVs já processados (`clusters_municipios_mvp.csv` + `serie_temporal_mvp.csv`),
+    reproduzindo exatamente a estrutura do `pb_municipios.json` original (campo
+    `todas` = média das 5 vacinas por `cobertura_capada`, ignorando NaN, igual à
+    regra do Dia 4 Parte 1; buracos ficam `null`, não são preenchidos/interpolados).
+  - **Limitação conhecida da fonte `geodata-br`**: 6 dos 5.570 municípios não têm
+    geometria na malha (ficam sem forma clicável no mapa, mas continuam presentes
+    nos dados/ranking/busca): Paraíso das Águas (MS), Mojuí dos Campos (PA),
+    Nazária (PI), Pinto Bandeira (RS), Pescaria Brava (SC), Balneário Rincão (SC).
+    Os 6 são municípios criados por desmembramento relativamente recente — a malha
+    da `geodata-br` nunca foi atualizada pra incluí-los. Verificado comparando o
+    `id` (código IBGE de 7 dígitos) de cada feature geográfica contra o `ibge6` dos
+    dados — 5.564 de 5.570 batem perfeitamente. Decisão: documentar e seguir (não
+    é prioridade do MVP buscar uma malha alternativa só pra esses 6).
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |

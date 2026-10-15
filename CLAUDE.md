@@ -198,6 +198,82 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     `id` (código IBGE de 7 dígitos) de cada feature geográfica contra o `ibge6` dos
     dados — 5.564 de 5.570 batem perfeitamente. Decisão: documentar e seguir (não
     é prioridade do MVP buscar uma malha alternativa só pra esses 6).
+- Dia 6 Parte 1 — resumo por estado (`data/processed/resumo_estados.json`, 27
+  linhas, `notebooks/gerar_resumo_estados.py`): mapa nacional colore por
+  **cobertura média do estado** (mesma escala contínua vermelho/amarelo/verde
+  usada no drill-down por município), não pelo cluster — decisão explícita pra
+  manter uma única linguagem visual de cor em todo o app. Cluster predominante
+  (moda entre os municípios do estado) e tendência média viram metadado exibido
+  ao selecionar o estado (tooltip/painel), sem afetar a cor do mapa.
+- Dia 6 Parte 1b — série nacional por ano/vacina
+  (`data/processed/serie_nacional.json`, `notebooks/gerar_serie_nacional.py`):
+  média de `cobertura_capada` por (ano, imunizante) em todo o Brasil, mesma
+  metodologia do Dia 3 Parte 4 e do "todas" do Dia 4 Parte 1, só que agregada em
+  nível nacional. Alimenta o mini-gráfico "evolução nacional" que fica visível
+  em toda vista do app (nacional e dentro de um estado) — não existia como
+  arquivo antes, só como PNG estático do Dia 3.
+- Dia 6 Parte 2 — frontend real em `frontend/` (Vite + React + TypeScript):
+  - Gerenciamento de estado: **Zustand** (`frontend/src/store/useAppStore.ts`),
+    não Context+useReducer — escolha do usuário entre as duas opções
+    apresentadas.
+  - Navegação nacional ↔ estado: **breadcrumb** ("Brasil / [Estado]"), não o
+    padrão de abas fixas do protótipo (`design-reference/template2.html`), já
+    que agora os 27 estados têm dado real (o protótipo só tinha Paraíba) e não
+    caberiam como abas.
+  - **Atualização:** decisão de "sem roteamento" revertida — o usuário pediu
+    URL navegável por estado/município (compartilhável, com voltar/avançar do
+    navegador). Agora usa react-router: `/`, `/:uf` (ex: `/PB`),
+    `/:uf/:municipio` (código IBGE de 7 dígitos, ex: `/PB/2501006` —
+    convertido pro `ibge6` interno via `.slice(0,6)`). Vacina/ano viram query
+    params (`?vacina=bcg&ano=2019`) com `replace:true` (escolha do usuário
+    entre as duas opções apresentadas) — assim trocar filtro não polui o
+    histórico, só a navegação entre estado/município empilha. A URL passou a
+    ser a fonte única de verdade pra navegação; o Zustand ficou só com o
+    cache de dados por estado e o estado do boot. Fallback de SPA adicionado
+    pra produção (`frontend/public/_redirects` e `frontend/vercel.json`),
+    senão um link direto pra `/PB/2501006` dá 404 no host estático.
+  - Carregamento sob demanda: `brazil-states-paths.json` + `resumo_estados.json`
+    + `serie_nacional.json` carregam no boot (pequenos); o par
+    `{UF}-mun-paths.json` + `{UF}_municipios.json` de cada estado só é buscado
+    (`fetch`) quando o estado é clicado, e fica cacheado em memória pro resto da
+    sessão.
+  - `data/processed/` é a fonte única de verdade; `frontend/public/data/` é uma
+    cópia de build gerada por `frontend/scripts/sync-data.mjs` (rodado via
+    `predev`/`prebuild` no `package.json`) e fica no `.gitignore` do frontend —
+    não duplica os ~20MB de JSON no git.
+  - Testado de ponta a ponta no navegador (Chrome, via `npm run dev`): drill-down
+    nacional → estado → município, filtro de vacina/ano, busca e clique na
+    tabela de ranking, breadcrumb de volta — tudo sincronizado, sem erros no
+    console.
+- Dia 6 Parte 3 — ajustes pós-revisão (roteamento, cor, zoom, animação):
+  - **Faixas de cor recalibradas**: `<65% / 65–80% / 80–88% / 88%+` (eram
+    `<70/85/95`). Motivo: os cortes originais foram pensados pra um valor
+    pontual (município/vacina/ano, que vai de ~33% a ~100%), mas o mapa
+    nacional usa média agregada de 5.570 municípios, comprimida numa faixa
+    bem mais estreita (estados vão de 58,7% a 88,8%) — com os cortes
+    antigos, 21 dos 27 estados caíam na mesma faixa "laranja" (verificado
+    contando a distribuição real antes de mudar qualquer número). Opção
+    escolhida entre 3 apresentadas (recalibrar cortes fixos / colorir por
+    `meta_atingida` / escala contínua): recalibrar cortes fixos, mantendo
+    cobertura média como critério e a mesma lógica compartilhada com a
+    coluna "Situação" da tabela. `meta_atingida` como critério foi
+    descartado porque, testado nos dados reais, deslocava o problema (quase
+    todo o Brasil cairia no vermelho sob os cortes antigos) em vez de
+    resolvê-lo.
+  - **Zoom até o município**: ao clicar num município (mapa ou tabela), o
+    mapa também dá zoom/pan pra focar nele (não só nacional→estado). Cálculo
+    geométrico real via `getBBox()` do `<path>` SVG selecionado, convertido
+    pra pixels considerando o letterboxing do `viewBox` (`preserveAspectRatio`
+    padrão `xMidYMid meet`) — não é só um valor fixo de zoom.
+  - **Transição de nível**: pop-in CSS (`@keyframes mapZoomIn`, 220ms) ao
+    trocar entre nacional/estado/outro estado (remonta via `key` do React).
+    O zoom até um município dentro do mesmo estado usa a `transition` já
+    existente no `.zoom-stage` (mesmo elemento, só muda `transform`), não
+    essa animação de remount. Sem lib de animação — CSS puro foi suficiente
+    pro efeito pedido ("nada exagerado"). Respeita
+    `prefers-reduced-motion: reduce`.
+  - **Roteamento por URL** (ver acima, "Atualização") e fallback de SPA pra
+    produção.
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
@@ -217,4 +293,6 @@ queda atípica por z-score calculado por ano (limiar z < -2), 1.492 casos em
 `data/processed/destaques_quedas_atipicas.csv`. Parte 3: frase explicativa
 combinando os dois sinais (perfil isolado vs. padrão mais amplo), tabela final em
 `data/processed/destaques_completo.csv` (ver detalhes de cada parte acima) |
-Dia 6 Frontend | Dia 7 Deploy
+Dia 6 Frontend 🔄 em andamento (ver detalhes acima: resumo por estado, série
+nacional e scaffold do app React testado no navegador; faltam port do
+restante do design/polimento e revisão final) | Dia 7 Deploy

@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Picadinhas — cobertura vacinal no Brasil</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#F6FAFD; --surface:#FFFFFF; --surface-2:#F0F6FB; --border:#DCE7F0;
+    --ink:#122B3D; --ink-muted:#5B7489; --ink-faint:#93A7B8;
+    --accent:#1B5FA8; --accent-light:#E8F1FA; --accent-dark:#114A87;
+    --crit:#B91C1C; --low:#E8920D; --good:#52A675; --high:#157347;
+    --nodata:#D7E3EC;
+    --radius:12px; --radius-sm:7px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;}
+  .num{font-variant-numeric:tabular-nums;}
+  button{font-family:inherit;}
+  a{color:inherit;}
+  .display{font-family:"Space Grotesk",system-ui,sans-serif;}
+
+  .app{max-width:1400px;margin:0 auto;padding:30px 32px 64px;}
+
+  /* ---------- top bar: plain text list, no app chrome ---------- */
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;padding-bottom:0;margin-bottom:0;}
+  .brand{display:flex;align-items:center;gap:0;}
+  .brand-name{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:700;font-size:13px;letter-spacing:0.01em;}
+  .tabs{display:flex;align-items:flex-start;gap:26px;padding-top:2px;}
+  .tab{border:none;background:none;padding:0;font-family:"Space Grotesk",system-ui,sans-serif;font-size:11px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-faint);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .tab::after{content:"";width:0;height:2px;background:var(--accent);transition:width .15s ease;}
+  .tab.active{color:var(--ink);}
+  .tab.active::after{width:12px;}
+  .tab:not(.active):hover{color:var(--ink-muted);}
+  .tab[disabled]{opacity:0.4;cursor:not-allowed;}
+  .tab[disabled]:hover{color:var(--ink-faint);}
+  .topbar-meta{font-size:10.5px;color:var(--ink-faint);text-align:right;line-height:1.6;}
+
+  /* ---------- stage: map-dominant, title anchored low like the reference poster layout ---------- */
+  .stage{display:grid;grid-template-columns:300px 1fr;gap:40px;position:relative;min-height:660px;}
+  .stage-col-left{padding:0 28px 36px 0;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:flex-end;}
+  .map-col{padding:30px 0 30px 0;display:flex;flex-direction:row;align-items:flex-start;gap:36px;}
+  @media (max-width:980px){ .stage{grid-template-columns:1fr;gap:0;min-height:0;} .stage-col-left{border:none;border-top:1px solid var(--border);padding:24px 0;justify-content:flex-start;} .map-col{flex-direction:column;padding-top:24px;} }
+
+  /* stats float plain on the page — no card chrome, just spacing (matches the reference: no boxes at all) */
+  .stat-rail{width:220px;flex-shrink:0;display:flex;flex-direction:column;gap:34px;padding-top:6px;}
+  @media (max-width:980px){ .stat-rail{width:100%;flex-direction:row;flex-wrap:wrap;gap:24px;} }
+
+  .eyebrow{font-size:10.5px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .eyebrow::before{content:"";display:inline-block;width:14px;height:1.5px;background:var(--accent);}
+  .stage-title{font-family:"Space Grotesk",system-ui,sans-serif;font-size:46px;font-weight:700;letter-spacing:-0.03em;line-height:0.98;margin-bottom:16px;text-wrap:balance;}
+  .stage-desc{font-size:13px;color:var(--ink-muted);line-height:1.65;margin-bottom:28px;max-width:30ch;}
+  .stage-fields{display:flex;flex-direction:column;margin-top:22px;}
+  .field{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding:11px 0;}
+  .field label{font-size:10.5px;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;}
+  select{border:none;background:transparent;font-family:"Space Grotesk",system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--ink);outline:none;cursor:pointer;text-align:right;}
+  .details-link{margin-top:22px;font-size:11.5px;font-weight:600;letter-spacing:0.02em;color:var(--accent);text-decoration:none;display:inline-flex;align-items:center;gap:5px;cursor:pointer;background:none;border:none;padding:0;text-transform:uppercase;}
+  .details-link:hover{text-decoration:underline;}
+
+  /* ---------- map column ---------- */
+  .map-viewport{position:relative;flex:1;overflow:hidden;min-height:620px;}
+  .zoom-stage{position:absolute;inset:0;transform-origin:50% 50%;transition:transform .18s ease;cursor:grab;}
+  .zoom-stage.dragging{cursor:grabbing;transition:none;}
+  svg.map-svg{width:100%;height:100%;display:block;}
+  #view-national{max-width:640px;margin:0 auto;display:block;}
+  #view-pb{max-width:680px;margin:0 auto;display:block;}
+
+  .state-path{fill:var(--nodata);stroke:var(--bg);stroke-width:1.3;cursor:pointer;transition:fill .15s ease, filter .15s ease;}
+  .state-path:hover{filter:brightness(0.92);stroke:var(--accent);stroke-width:1.8;}
+  .state-path.is-selected{stroke:var(--accent-dark);stroke-width:2.4;}
+  .state-label{font-size:9px;font-weight:700;fill:#FFFFFF;text-anchor:middle;pointer-events:none;paint-order:stroke;stroke:rgba(0,0,0,0.45);stroke-width:2px;opacity:0.9;}
+  .muni-path{fill:var(--nodata);stroke:var(--bg);stroke-width:0.6;cursor:pointer;transition:fill .15s ease, filter .15s ease;}
+  .muni-path:hover{filter:brightness(0.92);stroke:var(--accent);stroke-width:1.4;}
+  .muni-path.is-selected{stroke:var(--accent-dark);stroke-width:1.9;}
+
+  #view-national, #view-pb{display:none;}
+  #view-national.active, #view-pb.active{display:block;}
+
+  .tooltip{position:absolute;pointer-events:none;background:#0F2638;color:#fff;font-size:12px;line-height:1.45;padding:8px 10px;border-radius:7px;box-shadow:0 6px 18px rgba(18,43,61,0.25);max-width:220px;opacity:0;transform:translate(-50%,-110%);transition:opacity .08s ease;z-index:20;}
+  .tooltip.show{opacity:1;}
+  .tooltip b{font-weight:700;}
+  .tooltip .tt-val{color:#8FD6B4;font-weight:700;}
+
+  .map-hint{position:absolute;top:2px;left:2px;font-size:10.5px;font-weight:500;color:var(--ink-faint);z-index:5;}
+
+  .zoom-controls{position:absolute;bottom:6px;right:2px;display:flex;align-items:center;gap:14px;z-index:5;}
+  .zoom-controls button{width:20px;height:20px;border:none;border-bottom:1.5px solid var(--ink-faint);background:none;color:var(--ink-muted);font-size:13px;font-weight:600;cursor:pointer;line-height:1;padding:0;}
+  .zoom-controls button:hover{color:var(--ink);border-color:var(--ink);}
+
+  .legend-bar{position:absolute;bottom:6px;left:2px;z-index:5;}
+  .legend-label-row{display:flex;justify-content:space-between;width:200px;font-size:9px;color:var(--ink-faint);margin-top:5px;letter-spacing:0.02em;}
+  .legend-strip{display:flex;width:200px;height:4px;overflow:hidden;}
+  .legend-strip span{flex:1;}
+  .legend-title{font-size:9.5px;font-weight:600;color:var(--ink-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px;}
+  .legend-nodata{font-size:9px;color:var(--ink-faint);margin-top:7px;display:flex;align-items:center;gap:5px;}
+  .legend-nodata span{width:7px;height:7px;background:var(--nodata);display:inline-block;}
+
+  /* ---------- right stat column ---------- */
+  .stat-block{}
+  .stat-block-label{font-size:10px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+  .stat-num{font-family:"Space Grotesk",system-ui,sans-serif;font-size:30px;font-weight:700;letter-spacing:-0.02em;line-height:1;}
+  .stat-cap{font-size:11px;color:var(--ink-faint);margin-top:5px;line-height:1.4;}
+  .stat-divider{display:none;}
+  .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;margin-top:4px;}
+  .status-pill.ok{background:#E3F3EA;color:var(--high);}
+  .status-pill.bad{background:#FBE9E7;color:var(--crit);}
+  .empty-hint{font-size:12px;color:var(--ink-faint);line-height:1.55;}
+  .chart-wrap{}
+  .chart-title{font-size:10px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+
+  /* ---------- note strip ---------- */
+  .note-strip{border-left:2px solid var(--accent);padding:2px 0 2px 16px;margin-top:24px;font-size:12px;color:var(--ink-muted);line-height:1.65;max-width:74ch;}
+  .note-strip strong{color:var(--ink);font-weight:600;}
+
+  /* ---------- table section ---------- */
+  .table-section{margin-top:44px;}
+  .table-head-row{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;border-bottom:1px solid var(--ink);padding-bottom:14px;}
+  .table-head-row h2{font-family:"Space Grotesk",system-ui,sans-serif;font-size:24px;font-weight:700;letter-spacing:-0.01em;margin:0;}
+  .table-head-row p{font-size:11.5px;color:var(--ink-faint);margin:4px 0 0;}
+  .search-box{display:flex;align-items:center;gap:7px;border-bottom:1px solid var(--ink-faint);padding:6px 2px;font-size:12.5px;min-width:200px;}
+  .search-box input{border:none;outline:none;background:transparent;font-family:inherit;font-size:12.5px;color:var(--ink);width:100%;}
+  .search-box input::placeholder{color:var(--ink-faint);}
+
+  table.ranking{width:100%;border-collapse:collapse;}
+  table.ranking thead th{text-align:left;font-size:9.5px;font-weight:600;color:var(--ink-faint);text-transform:uppercase;letter-spacing:0.06em;padding:0 14px 10px 0;}
+  table.ranking thead th.num-col{text-align:right;}
+  table.ranking tbody td{padding:13px 14px 13px 0;border-top:1px solid var(--border);font-size:13px;}
+  table.ranking tbody tr{cursor:pointer;transition:opacity .12s;}
+  table.ranking tbody tr:hover{opacity:0.65;}
+  table.ranking tbody tr.is-selected td{color:var(--accent-dark);}
+  table.ranking td.num-col{text-align:right;font-family:"Space Grotesk",system-ui,sans-serif;font-weight:600;font-size:14px;}
+  .uf-badge{display:flex;align-items:baseline;gap:9px;}
+  .uf-name{font-weight:700;}
+  .uf-code{color:var(--ink-faint);font-weight:500;font-size:11px;}
+  .row-status{font-size:12px;font-weight:600;}
+  .row-status.ok{color:var(--high);}
+  .row-status.near{color:var(--good);}
+  .row-status.warn{color:var(--low);}
+  .row-status.bad{color:var(--crit);}
+
+  footer.foot{margin-top:28px;padding-top:16px;border-top:1px solid var(--border);font-size:11.5px;color:var(--ink-faint);line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-name display">Picadinhas</span>
+    </div>
+    <div class="tabs">
+      <button class="tab active" id="tab-brasil">Brasil</button>
+      <button class="tab" id="tab-pb">Paraíba</button>
+      <button class="tab" disabled title="Malha ainda não gerada neste protótipo">+25 estados</button>
+    </div>
+    <div class="topbar-meta">Dados do VacinaBR (iqc.org.br) · 2014–2023<br>Protótipo de interface — Dia 6</div>
+  </div>
+
+  <div class="stage">
+    <div class="stage-col-left">
+      <div class="eyebrow" id="col-eyebrow">Visão geral</div>
+      <div class="stage-title" id="col-title">Brasil</div>
+      <div class="stage-desc" id="col-desc">5.570 municípios, cinco vacinas do calendário infantil, dez anos de histórico. Cores indicam a cobertura média de cada estado no filtro selecionado.</div>
+
+      <div class="stage-fields">
+        <div class="field">
+          <label for="sel-vacina">Vacina</label>
+          <select id="sel-vacina">__VAC_OPTIONS__</select>
+        </div>
+        <div class="field">
+          <label for="sel-ano">Ano</label>
+          <select id="sel-ano">__YEAR_OPTIONS__</select>
+        </div>
+      </div>
+
+      <a class="details-link" id="link-table">Ver todos os estados em tabela ↓</a>
+    </div>
+
+    <div class="map-col">
+      <div class="map-viewport" id="map-viewport">
+        <div class="map-hint" id="map-hint">clique em um estado para aproximar</div>
+        <div class="zoom-stage" id="zoom-stage">
+          <svg id="view-national" class="map-svg active" viewBox="__NAT_VIEWBOX__" xmlns="http://www.w3.org/2000/svg">
+            <g id="national-paths">
+__STATE_PATHS__
+            </g>
+            <g id="national-labels">
+__STATE_LABELS__
+            </g>
+          </svg>
+          <svg id="view-pb" class="map-svg" viewBox="__PB_VIEWBOX__" xmlns="http://www.w3.org/2000/svg">
+            <g id="pb-paths">
+__MUNI_PATHS__
+            </g>
+          </svg>
+        </div>
+        <div class="tooltip" id="tooltip"></div>
+
+        <div class="legend-bar">
+          <div class="legend-title">Cobertura</div>
+          <div class="legend-strip">
+            <span style="background:#B91C1C"></span>
+            <span style="background:#E8920D"></span>
+            <span style="background:#52A675"></span>
+            <span style="background:#157347"></span>
+          </div>
+          <div class="legend-label-row"><span>&lt;70%</span><span>70–85%</span><span>85–95%</span><span>95%+</span></div>
+          <div class="legend-nodata"><span></span>sem dado</div>
+        </div>
+
+        <div class="zoom-controls">
+          <button id="zoom-in" aria-label="Aproximar">+</button>
+          <button id="zoom-out" aria-label="Afastar">−</button>
+        </div>
+      </div>
+
+      <div class="stat-rail">
+        <div id="stat-default">
+          <div class="stat-block">
+            <div class="stat-block-label">Municípios analisados</div>
+            <div class="stat-num num">5.570</div>
+          </div>
+          <div class="stat-block" style="margin-top:20px;">
+            <div class="stat-block-label">Período coberto</div>
+            <div class="stat-num num" style="font-size:24px;">2014–23</div>
+          </div>
+          <div class="stat-block" style="margin-top:20px;">
+            <div class="stat-block-label">Quedas atípicas (Dia 5)</div>
+            <div class="stat-num num" style="color:var(--crit);font-size:24px;">1.492</div>
+            <div class="stat-cap">z-score &lt; −2 vs. a média do mesmo ano</div>
+          </div>
+        </div>
+
+        <div id="stat-selection" style="display:none;">
+          <div class="stat-block-label" id="sel-kicker">Seleção</div>
+          <div class="display" id="sel-name" style="font-size:22px;font-weight:700;letter-spacing:-0.02em;line-height:1.05;margin-bottom:4px;"></div>
+          <div class="stat-cap" id="sel-sub" style="margin-bottom:18px;"></div>
+          <div class="stat-block">
+            <div class="stat-block-label">Cobertura</div>
+            <div class="stat-num num" id="sel-cob" style="font-size:26px;"></div>
+          </div>
+          <div id="sel-meta-block" style="display:none;margin-top:16px;">
+            <div class="stat-block-label">Meta / situação</div>
+            <div style="display:flex;align-items:baseline;gap:8px;">
+              <span class="display num" id="sel-meta" style="font-size:16px;font-weight:600;"></span>
+              <span id="sel-status"></span>
+            </div>
+          </div>
+          <div id="sel-cluster-block" style="display:none;margin-top:16px;">
+            <div class="stat-block-label">Perfil (Dia 4)</div>
+            <div style="font-size:12.5px;font-weight:700;" id="sel-cluster"></div>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="chart-title">Evolução nacional — <span id="chart-vac-label">todas as vacinas</span></div>
+          <svg id="chart-svg" viewBox="0 0 230 120" width="100%" height="120"></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note-strip">
+    <strong>O que já é real neste protótipo —</strong> o mapa de estados usa dados reais (27 estados, 5 vacinas, 10 anos). O drill-down município a município — malha geográfica e indicadores — está completo só para a <strong>Paraíba</strong> (223 municípios), como prova de conceito da arquitetura "carrega sob demanda". Clicar nos demais 25 estados mostra o indicador real do estado, mas ainda não abre os municípios.
+  </div>
+
+  <div class="table-section" id="table-section">
+    <div class="table-head-row">
+      <div>
+        <h2>Todos os estados</h2>
+        <p>Cobertura média no filtro selecionado · clique numa linha para ver no mapa</p>
+      </div>
+      <div class="search-box">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--ink-faint);flex-shrink:0;"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="table-search" type="text" placeholder="Buscar estado…">
+      </div>
+    </div>
+    <table class="ranking">
+      <thead>
+        <tr>
+          <th>Estado</th>
+          <th class="num-col">Municípios</th>
+          <th class="num-col">Cobertura</th>
+          <th>Situação</th>
+        </tr>
+      </thead>
+      <tbody id="ranking-body"></tbody>
+    </table>
+  </div>
+
+  <footer class="foot">Protótipo de interface (Dia 6) — dados do VacinaBR, 2014–2023. Uso de dados de saúde pública; não é diagnóstico nem recomendação médica.</footer>
+</div>
+
+<script>
+const DATA = __JS_DATA__;
+const VAC_LABELS = Object.fromEntries(DATA.vacOptions);
+const CLUSTER_LABELS = {
+  'Cobertura alta e estavel': 'Cobertura alta e estável',
+  'Cobertura baixa, em recuperacao': 'Cobertura baixa, em recuperação',
+  'Cobertura em queda e instavel': 'Cobertura em queda e instável',
+};
+
+let view = 'national';
+let selVacina = 'todas';
+let selAno = '2023';
+let selUF = null;
+let selMuni = null;
+let zoom = 1, panX = 0, panY = 0;
+
+const $ = (sel) => document.querySelector(sel);
+const fmtPct = (v) => (v === null || v === undefined || Number.isNaN(v)) ? '—' : v.toLocaleString('pt-BR', {minimumFractionDigits:1, maximumFractionDigits:1}) + '%';
+
+function colorFor(v){
+  if (v === null || v === undefined || Number.isNaN(v)) return '#D7E3EC';
+  if (v < 70) return '#B91C1C';
+  if (v < 85) return '#E8920D';
+  if (v < 95) return '#52A675';
+  return '#157347';
+}
+function statusWord(v){
+  if (v === null || v === undefined || Number.isNaN(v)) return null;
+  if (v < 70) return 'bad';
+  if (v < 85) return 'warn';
+  if (v < 95) return 'near';
+  return 'ok';
+}
+function statusText(w){
+  return {bad:'Crítico', warn:'Baixa cobertura', near:'Próximo da meta', ok:'Na meta'}[w] || '—';
+}
+
+function paintNational(){
+  const cov = DATA.nat.cov;
+  document.querySelectorAll('.state-path').forEach(p => {
+    const uf = p.dataset.uf;
+    const v = cov[uf] && cov[uf][selAno] ? cov[uf][selAno][selVacina] : null;
+    p.style.fill = colorFor(v);
+    p.dataset.value = (v === null || v === undefined) ? '' : v;
+  });
+}
+function paintPB(){
+  document.querySelectorAll('.muni-path').forEach(p => {
+    const ib = p.dataset.ibge6;
+    const rec = DATA.pb.series[ib] && DATA.pb.series[ib][selAno] ? DATA.pb.series[ib][selAno][selVacina] : null;
+    const v = rec ? rec.cob : null;
+    p.style.fill = colorFor(v);
+  });
+}
+function repaint(){ if (view === 'national') paintNational(); else paintPB(); }
+
+function showTooltip(evt, html){
+  const tt = $('#tooltip');
+  tt.innerHTML = html;
+  tt.classList.add('show');
+  const wrap = $('#map-viewport').getBoundingClientRect();
+  tt.style.left = (evt.clientX - wrap.left) + 'px';
+  tt.style.top = (evt.clientY - wrap.top) + 'px';
+}
+function hideTooltip(){ $('#tooltip').classList.remove('show'); }
+
+function showEmpty(){
+  $('#stat-default').style.display = 'block';
+  $('#stat-selection').style.display = 'none';
+}
+function showStateDetail(uf){
+  const s = DATA.nat;
+  const cov = s.cov[uf] || {};
+  const v = cov[selAno] ? cov[selAno][selVacina] : null;
+  const name = document.querySelector(`.state-path[data-uf="${uf}"]`).dataset.name;
+  $('#stat-default').style.display = 'none';
+  $('#stat-selection').style.display = 'block';
+  $('#sel-kicker').textContent = 'Estado selecionado';
+  $('#sel-name').textContent = name;
+  $('#sel-sub').textContent = `${s.nMun[uf] || '—'} municípios · ${selAno} · ${VAC_LABELS[selVacina]}`;
+  $('#sel-cob').textContent = fmtPct(v);
+  $('#sel-meta-block').style.display = 'none';
+  $('#sel-cluster-block').style.display = 'none';
+  document.querySelectorAll('table.ranking tbody tr').forEach(r => r.classList.toggle('is-selected', r.dataset.uf === uf));
+}
+function showMuniDetail(ibge6){
+  const meta = DATA.pb.meta[ibge6];
+  const rec = DATA.pb.series[ibge6] && DATA.pb.series[ibge6][selAno] ? DATA.pb.series[ibge6][selAno][selVacina] : null;
+  $('#stat-default').style.display = 'none';
+  $('#stat-selection').style.display = 'block';
+  $('#sel-kicker').textContent = 'Município selecionado';
+  $('#sel-name').textContent = meta ? meta.nome : ibge6;
+  $('#sel-sub').textContent = `Paraíba · ${selAno} · ${VAC_LABELS[selVacina]}`;
+  $('#sel-cob').textContent = rec ? fmtPct(rec.cob) : '—';
+  $('#sel-meta-block').style.display = 'block';
+  $('#sel-meta').textContent = rec && rec.meta !== null ? fmtPct(rec.meta) : '—';
+  if (rec && rec.ok !== null){
+    $('#sel-status').innerHTML = rec.ok ? '<span class="status-pill ok">atingiu</span>' : '<span class="status-pill bad">abaixo</span>';
+  } else { $('#sel-status').textContent = ''; }
+  $('#sel-cluster-block').style.display = 'block';
+  $('#sel-cluster').textContent = meta ? (CLUSTER_LABELS[meta.cluster] || meta.cluster) : '—';
+}
+
+function resetZoom(){ zoom = 1; panX = 0; panY = 0; applyTransform(); }
+function applyTransform(){
+  $('#zoom-stage').style.transform = `translate(${panX}px, ${panY}px) scale(${zoom})`;
+}
+
+function goNational(){
+  view = 'national';
+  selMuni = null;
+  $('#view-national').classList.add('active');
+  $('#view-pb').classList.remove('active');
+  $('#tab-brasil').classList.add('active');
+  $('#tab-pb').classList.remove('active');
+  $('#map-hint').textContent = 'clique em um estado para aproximar';
+  $('#col-eyebrow').textContent = 'Visão geral';
+  $('#col-title').textContent = 'Brasil';
+  $('#col-desc').textContent = '5.570 municípios, cinco vacinas do calendário infantil, dez anos de histórico. Cores indicam a cobertura média de cada estado no filtro selecionado.';
+  document.querySelectorAll('.state-path').forEach(p => p.classList.remove('is-selected'));
+  resetZoom();
+  if (selUF) showStateDetail(selUF); else showEmpty();
+  repaint();
+}
+function goPB(){
+  view = 'pb';
+  selUF = 'PB';
+  $('#view-pb').classList.add('active');
+  $('#view-national').classList.remove('active');
+  $('#tab-brasil').classList.remove('active');
+  $('#tab-pb').classList.add('active');
+  $('#map-hint').textContent = '223 municípios · clique para o detalhe';
+  $('#col-eyebrow').textContent = 'Drill-down real';
+  $('#col-title').textContent = 'Paraíba';
+  $('#col-desc').textContent = '223 municípios com malha geográfica e indicadores reais — a prova de conceito da arquitetura de carregamento sob demanda, estado por estado.';
+  resetZoom();
+  showEmpty();
+  repaint();
+}
+
+document.querySelectorAll('.state-path').forEach(p => {
+  p.addEventListener('mousemove', (e) => {
+    const name = p.dataset.name, v = p.dataset.value;
+    showTooltip(e, `<b>${name}</b><br>${v !== '' ? `<span class="tt-val">${fmtPct(parseFloat(v))}</span> de cobertura` : 'sem dado'}`);
+  });
+  p.addEventListener('mouseleave', hideTooltip);
+  p.addEventListener('click', () => {
+    const uf = p.dataset.uf;
+    document.querySelectorAll('.state-path').forEach(x => x.classList.remove('is-selected'));
+    p.classList.add('is-selected');
+    selUF = uf;
+    showStateDetail(uf);
+    if (uf === 'PB') goPB();
+  });
+});
+document.querySelectorAll('.muni-path').forEach(p => {
+  p.addEventListener('mousemove', (e) => {
+    const ib = p.dataset.ibge6;
+    const rec = DATA.pb.series[ib] && DATA.pb.series[ib][selAno] ? DATA.pb.series[ib][selAno][selVacina] : null;
+    const v = rec ? rec.cob : null;
+    showTooltip(e, `<b>${p.dataset.name}</b><br>${v !== null ? `<span class="tt-val">${fmtPct(v)}</span> de cobertura` : 'sem dado'}`);
+  });
+  p.addEventListener('mouseleave', hideTooltip);
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.muni-path').forEach(x => x.classList.remove('is-selected'));
+    p.classList.add('is-selected');
+    selMuni = p.dataset.ibge6;
+    showMuniDetail(selMuni);
+  });
+});
+
+$('#tab-brasil').addEventListener('click', goNational);
+$('#tab-pb').addEventListener('click', goPB);
+$('#link-table').addEventListener('click', () => $('#table-section').scrollIntoView({behavior:'smooth', block:'start'}));
+
+$('#sel-vacina').addEventListener('change', (e) => {
+  selVacina = e.target.value;
+  repaint(); renderChart(); renderTable();
+  if (view === 'pb' && selMuni) showMuniDetail(selMuni);
+  else if (view === 'national' && selUF) showStateDetail(selUF);
+});
+$('#sel-ano').addEventListener('change', (e) => {
+  selAno = e.target.value;
+  repaint(); renderChart(); renderTable();
+  if (view === 'pb' && selMuni) showMuniDetail(selMuni);
+  else if (view === 'national' && selUF) showStateDetail(selUF);
+});
+
+// ---- zoom + pan ----
+$('#zoom-in').addEventListener('click', () => { zoom = Math.min(3, +(zoom + 0.5).toFixed(2)); applyTransform(); });
+$('#zoom-out').addEventListener('click', () => { zoom = Math.max(1, +(zoom - 0.5).toFixed(2)); if (zoom === 1){panX=0;panY=0;} applyTransform(); });
+
+let dragging = false, dragMoved = false, dragStartX = 0, dragStartY = 0;
+const stageEl = () => $('#zoom-stage');
+$('#map-viewport').addEventListener('pointerdown', (e) => {
+  if (zoom <= 1) return;
+  dragging = true; dragMoved = false;
+  dragStartX = e.clientX - panX; dragStartY = e.clientY - panY;
+  stageEl().classList.add('dragging');
+});
+window.addEventListener('pointermove', (e) => {
+  if (!dragging) return;
+  const nx = e.clientX - dragStartX, ny = e.clientY - dragStartY;
+  if (Math.abs(nx - panX) > 3 || Math.abs(ny - panY) > 3) dragMoved = true;
+  panX = nx; panY = ny;
+  applyTransform();
+});
+window.addEventListener('pointerup', () => { dragging = false; stageEl().classList.remove('dragging'); });
+$('#map-viewport').addEventListener('click', (e) => {
+  if (dragMoved) { e.stopPropagation(); dragMoved = false; }
+}, true);
+
+// ---- mini chart ----
+function renderChart(){
+  $('#chart-vac-label').textContent = VAC_LABELS[selVacina].toLowerCase();
+  const years = DATA.years;
+  const series = years.map(y => DATA.brasil[y][selVacina]);
+  const min = Math.min(...series), max = Math.max(...series);
+  const padLo = Math.max(0, Math.floor((min - 4) / 5) * 5);
+  const padHi = Math.min(100, Math.ceil((max + 4) / 5) * 5);
+  const W = 230, H = 120, L = 26, R = 6, T = 10, B = 18;
+  const pw = W - L - R, ph = H - T - B;
+  const x = (i) => L + i * (pw / (years.length - 1));
+  const y = (v) => T + (padHi - v) / (padHi - padLo) * ph;
+
+  let svg = '';
+  [padLo, padHi].forEach(gv => {
+    const gy = y(gv);
+    svg += `<line x1="${L}" y1="${gy}" x2="${W-R}" y2="${gy}" stroke="#DCE7F0" stroke-width="1"/>`;
+    svg += `<text x="${L-5}" y="${gy+3}" text-anchor="end" font-size="8" fill="#93A7B8">${Math.round(gv)}%</text>`;
+  });
+  let areaPts = series.map((v,i) => `${x(i)},${y(v)}`).join(' L ');
+  svg += `<path d="M ${areaPts} L ${x(years.length-1)},${T+ph} L ${x(0)},${T+ph} Z" fill="#1B5FA8" fill-opacity="0.08" stroke="none"/>`;
+  let linePts = series.map((v,i) => `${x(i)},${y(v)}`).join(' L ');
+  svg += `<path d="M ${linePts}" fill="none" stroke="#1B5FA8" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const minIdx = series.indexOf(min), lastIdx = series.length - 1;
+  svg += `<circle cx="${x(minIdx)}" cy="${y(min)}" r="3" fill="#B91C1C" stroke="#fff" stroke-width="1.3"/>`;
+  svg += `<circle cx="${x(lastIdx)}" cy="${y(series[lastIdx])}" r="3" fill="#157347" stroke="#fff" stroke-width="1.3"/>`;
+  svg += `<text x="${x(lastIdx)-3}" y="${y(series[lastIdx])-7}" text-anchor="end" font-size="8.5" font-weight="700" fill="#157347">${fmtPct(series[lastIdx])}</text>`;
+  svg += `<text x="${x(0)}" y="${H-3}" text-anchor="start" font-size="8" fill="#93A7B8">${years[0]}</text>`;
+  svg += `<text x="${x(years.length-1)}" y="${H-3}" text-anchor="end" font-size="8" fill="#93A7B8">${years[years.length-1]}</text>`;
+  $('#chart-svg').innerHTML = svg;
+}
+
+// ---- ranking table ----
+function renderTable(){
+  const cov = DATA.nat.cov;
+  const rows = Object.keys(cov).map(uf => {
+    const v = cov[uf][selAno] ? cov[uf][selAno][selVacina] : null;
+    const name = document.querySelector(`.state-path[data-uf="${uf}"]`)?.dataset.name || uf;
+    return { uf, name, v, n: DATA.nat.nMun[uf] || 0 };
+  }).sort((a,b) => (b.v ?? -1) - (a.v ?? -1));
+
+  const q = ($('#table-search').value || '').toLowerCase();
+  const body = $('#ranking-body');
+  body.innerHTML = rows
+    .filter(r => r.name.toLowerCase().includes(q) || r.uf.toLowerCase().includes(q))
+    .map(r => {
+      const w = statusWord(r.v);
+      return `<tr data-uf="${r.uf}" class="${selUF===r.uf?'is-selected':''}">
+        <td><span class="uf-badge"><span class="uf-name">${r.name}</span> <span class="uf-code">${r.uf}</span></span></td>
+        <td class="num-col num">${r.n.toLocaleString('pt-BR')}</td>
+        <td class="num-col num">${fmtPct(r.v)}</td>
+        <td>${w ? `<span class="row-status ${w}">${statusText(w)}</span>` : '—'}</td>
+      </tr>`;
+    }).join('');
+
+  body.querySelectorAll('tr').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const uf = tr.dataset.uf;
+      selUF = uf;
+      document.querySelectorAll('.state-path').forEach(x => x.classList.remove('is-selected'));
+      const path = document.querySelector(`.state-path[data-uf="${uf}"]`);
+      if (path) path.classList.add('is-selected');
+      if (uf === 'PB') { goPB(); } else { if (view !== 'national') goNational(); showStateDetail(uf); }
+      $('#map-viewport').scrollIntoView({behavior:'smooth', block:'center'});
+    });
+  });
+}
+$('#table-search').addEventListener('input', renderTable);
+
+paintNational();
+renderChart();
+renderTable();
+</script>
+</body>
+</html>

@@ -1,13 +1,17 @@
-@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=Playfair+Display:wght@600;700&display=swap");
 
 :root {
-  --bg: #f6fafd;
+  /* Direcao editorial (redesign, ver CLAUDE.md Dia 6 Parte 3): tons "papel"
+     mais quentes no lugar do azul-gelo do dashboard original. As cores de
+     semaforo (--crit/--low/--good/--high) e --accent NAO mudam — ja
+     validadas por contraste/daltonismo, so a composicao/tipografia muda. */
+  --bg: #f7f5ee;
   --surface: #ffffff;
-  --surface-2: #f0f6fb;
-  --border: #dce7f0;
-  --ink: #122b3d;
-  --ink-muted: #5b7489;
-  --ink-faint: #93a7b8;
+  --surface-2: #f1ede1;
+  --border: #e3dccc;
+  --ink: #201d16;
+  --ink-muted: #6b6558;
+  --ink-faint: #9c9587;
   --accent: #1b5fa8;
   --accent-light: #e8f1fa;
   --accent-dark: #114a87;
@@ -15,9 +19,10 @@
   --low: #e8920d;
   --good: #52a675;
   --high: #157347;
-  --nodata: #d7e3ec;
+  --nodata: #e3dccc;
   --radius: 12px;
   --radius-sm: 7px;
+  --serif: "Playfair Display", "Georgia", serif;
 }
 
 * {
@@ -62,41 +67,41 @@ a {
 /* ---------- top bar ---------- */
 .topbar {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 14px;
 }
 .brand-name {
-  font-family:
-    "Space Grotesk",
-    system-ui,
-    sans-serif;
+  font-family: var(--serif);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.01em;
 }
 .breadcrumb {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding-top: 2px;
+  gap: 22px;
 }
 .breadcrumb button {
   border: none;
+  border-bottom: 2px solid transparent;
   background: none;
-  padding: 0;
+  padding: 2px 0;
   font-family:
-    "Space Grotesk",
+    "Public Sans",
     system-ui,
     sans-serif;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink-faint);
   cursor: pointer;
 }
 .breadcrumb button.active {
   color: var(--ink);
+  border-bottom-color: var(--high);
 }
 .breadcrumb button:not(.active):hover {
   color: var(--ink-muted);
@@ -107,20 +112,369 @@ a {
 }
 .breadcrumb .current {
   font-family:
-    "Space Grotesk",
+    "Public Sans",
     system-ui,
     sans-serif;
   font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--ink);
+  padding-bottom: 2px;
+  border-bottom: 2px solid var(--high);
 }
 .topbar-meta {
   font-size: 10.5px;
   color: var(--ink-faint);
   text-align: right;
   line-height: 1.6;
+}
+
+/* ---------- hero banner (so visao nacional) ---------- */
+.hero-banner {
+  position: relative;
+  margin: 0 -32px 36px;
+  padding: 52px 32px 40px;
+  overflow: hidden;
+  /* 3 camadas, a primeira listada pinta por cima: véu escuro (sempre
+     presente, garante legibilidade do texto) > foto (so aparece quando o
+     arquivo existir) > gradiente CSS (fallback, so visivel onde a foto
+     falhar ao carregar — um background-image que da 404 fica transparente
+     nessa camada, nao derruba as camadas seguintes). Pra trocar o
+     placeholder pela foto final, salve o arquivo em
+     frontend/public/images/hero-bg.jpg (crie a pasta se nao existir) —
+     nada mais precisa mudar, o CSS ja aponta pra esse caminho. */
+  background:
+    linear-gradient(165deg, rgba(10, 26, 20, 0.55) 0%, rgba(10, 26, 20, 0.3) 55%, rgba(10, 26, 20, 0.6) 100%),
+    url("/images/hero-bg.jpg") center/cover no-repeat,
+    linear-gradient(165deg, #1b3a30 0%, #2a5143 42%, #3c6b52 72%, #5c8863 100%);
+  color: #fdfbf4;
+}
+.hero-map-mark {
+  position: absolute;
+  top: -180px;
+  right: -140px;
+  width: 520px;
+  height: 480px;
+  opacity: 0.12;
+  fill: #fdfbf4;
+  pointer-events: none;
+}
+.hero-content {
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.hero-title {
+  font-family: var(--serif);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.08;
+  margin: 0 0 10px;
+}
+.hero-subtitle {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(253, 251, 244, 0.86);
+  max-width: 44ch;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+.hero-rule {
+  display: block;
+  width: 56px;
+  height: 2px;
+  background: #fdfbf4;
+  opacity: 0.6;
+}
+@media (max-width: 680px) {
+  .hero-banner {
+    padding: 36px 20px 28px;
+  }
+  .hero-title {
+    font-size: 28px;
+  }
+}
+
+/* ---------- barra de filtro nacional (substitui a coluna de 300px) ---------- */
+.national-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 8px;
+}
+.field-inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.field-inline label {
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.field-inline select {
+  border: none;
+  background: transparent;
+  font-family: var(--serif);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  outline: none;
+  cursor: pointer;
+}
+
+/* ---------- callouts (so visao nacional, contextual ao hover) ---------- */
+/* O card flutua por cima do mapa (position:absolute, left/top calculados
+   em JS) em vez de reservar uma coluna fixa no layout — uma coluna sempre
+   reservada (mesmo sem nenhum callout visivel) e o motivo do mapa nacional
+   ter ficado pequeno antes desse ajuste; o mapa agora usa 100% do espaco
+   disponivel o tempo todo. */
+.callout-stage {
+  position: relative;
+  flex: 1;
+}
+.callout-map-slot {
+  width: 100%;
+  height: 100%;
+}
+.callout-lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 1;
+}
+.callout-lines line {
+  stroke: var(--ink-faint);
+  stroke-width: 1;
+}
+.callout-lines circle {
+  fill: var(--ink);
+}
+.callout-box {
+  position: absolute;
+  z-index: 2;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(3px);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: 0 10px 30px rgba(32, 29, 22, 0.14);
+  pointer-events: none;
+}
+.callout-box-left {
+  text-align: left;
+}
+.callout-box-right {
+  text-align: right;
+}
+.callout-eyebrow {
+  font-family: var(--serif);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.callout-uf {
+  color: var(--ink-faint);
+  font-size: 13px;
+  font-weight: 400;
+}
+.callout-value {
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.callout-caption {
+  font-size: 11px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin-bottom: 14px;
+}
+.callout-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+.callout-box-right .callout-stats {
+  align-items: flex-end;
+}
+.callout-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.callout-stat span {
+  font-size: 9.5px;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.callout-stat strong {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.callout-stat strong.ok {
+  color: var(--high);
+}
+.callout-stat strong.bad {
+  color: var(--crit);
+}
+
+/* entrada: a caixa so recebe fade (opacidade nao afeta a medicao de
+   posicao usada pra desenhar a linha-guia); o "movimento leve" fica por
+   conta do ponto/linha, que crescem com um pop sutil */
+@keyframes calloutFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes calloutDotPop {
+  from {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.callout-box-enter {
+  animation: calloutFade 200ms ease-out;
+}
+.callout-line-enter {
+  animation: calloutFade 240ms ease-out;
+}
+.callout-dot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: calloutDotPop 260ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .callout-box-enter,
+  .callout-line-enter,
+  .callout-dot {
+    animation: none;
+  }
+}
+
+@media (max-width: 980px) {
+  /* tela estreita nao tem espaco sobrando ao lado do mapa pro card
+     flutuante nem gatilho de hover de verdade (touch) — o callout
+     contextual fica reservado pra telas largas; o mapa continua
+     clicavel/navegavel normalmente */
+  .callout-lines,
+  .callout-box {
+    display: none;
+  }
+}
+
+/* ---------- national footer: pessoas + meters ---------- */
+.national-footer {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  margin-top: 36px;
+  padding-top: 28px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+.footer-people {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.footer-people-icons {
+  display: flex;
+}
+.footer-people-icons svg {
+  margin-left: -3px;
+}
+.footer-people-num {
+  font-family: var(--serif);
+  font-size: 24px;
+  font-weight: 700;
+}
+.footer-people-cap {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.footer-meters {
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-content: center;
+}
+.meter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.meter-label {
+  font-size: 10.5px;
+  color: var(--ink-muted);
+  text-align: center;
+  max-width: 90px;
+}
+.footer-source {
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  text-align: right;
+  line-height: 1.6;
+  flex-shrink: 0;
+}
+
+/* ---------- legend chips ---------- */
+.legend-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.legend-chip {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+.legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-chip-text {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 10px;
+}
+.legend-chip-label {
+  color: var(--ink);
+  font-weight: 600;
+}
+.legend-chip-range {
+  color: var(--ink-faint);
 }
 
 /* ---------- stage ---------- */
@@ -137,6 +491,10 @@ a {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
+}
+.app-national .stage-col-left {
+  justify-content: flex-start;
+  padding-top: 28px;
 }
 .map-col {
   padding: 30px 0;
@@ -199,14 +557,11 @@ a {
   background: var(--accent);
 }
 .stage-title {
-  font-family:
-    "Space Grotesk",
-    system-ui,
-    sans-serif;
-  font-size: 46px;
+  font-family: var(--serif);
+  font-size: 44px;
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 0.98;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
   margin-bottom: 16px;
   text-wrap: balance;
 }
@@ -318,6 +673,14 @@ svg.map-svg {
   display: block;
   max-width: 640px;
   margin: 0 auto;
+}
+/* mapa nacional um pouco maior que o de estado/municipio (esse fica como
+   estava) — mas sem dominar a tela a ponto de exigir muito scroll */
+.callout-map-slot .map-viewport {
+  min-height: 740px;
+}
+.callout-map-slot svg.map-svg {
+  max-width: 720px;
 }
 
 .state-path {
@@ -437,24 +800,9 @@ svg.map-svg {
   bottom: 6px;
   left: 2px;
   z-index: 5;
-}
-.legend-label-row {
-  display: flex;
-  justify-content: space-between;
-  width: 200px;
-  font-size: 9px;
-  color: var(--ink-faint);
-  margin-top: 5px;
-  letter-spacing: 0.02em;
-}
-.legend-strip {
-  display: flex;
-  width: 200px;
-  height: 4px;
-  overflow: hidden;
-}
-.legend-strip span {
-  flex: 1;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
 }
 .legend-title {
   font-size: 9.5px;
@@ -463,20 +811,6 @@ svg.map-svg {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 7px;
-}
-.legend-nodata {
-  font-size: 9px;
-  color: var(--ink-faint);
-  margin-top: 7px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-.legend-nodata span {
-  width: 7px;
-  height: 7px;
-  background: var(--nodata);
-  display: inline-block;
 }
 
 /* ---------- right stat column ---------- */
@@ -566,13 +900,10 @@ svg.map-svg {
   padding-bottom: 14px;
 }
 .table-head-row h2 {
-  font-family:
-    "Space Grotesk",
-    system-ui,
-    sans-serif;
-  font-size: 24px;
+  font-family: var(--serif);
+  font-size: 28px;
   font-weight: 700;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   margin: 0;
 }
 .table-head-row p {

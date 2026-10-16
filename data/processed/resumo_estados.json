@@ -2,6 +2,7 @@
   "AC": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 64.8,
+    "n_destaques": 5,
     "n_municipios": 22,
     "nome": "Acre",
     "tendencia_media": -0.92
@@ -9,6 +10,7 @@
   "AL": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 84.9,
+    "n_destaques": 12,
     "n_municipios": 102,
     "nome": "Alagoas",
     "tendencia_media": -0.64
@@ -16,6 +18,7 @@
   "AM": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 75.1,
+    "n_destaques": 17,
     "n_municipios": 62,
     "nome": "Amazonas",
     "tendencia_media": -1.31
@@ -23,6 +26,7 @@
   "AP": {
     "cluster_predominante": "Cobertura em queda e instavel",
     "cobertura_media": 67.3,
+    "n_destaques": 4,
     "n_municipios": 16,
     "nome": "Amapá",
     "tendencia_media": -1.1
@@ -30,6 +34,7 @@
   "BA": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 77.7,
+    "n_destaques": 162,
     "n_municipios": 417,
     "nome": "Bahia",
     "tendencia_media": 0.57
@@ -37,6 +42,7 @@
   "CE": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 86.9,
+    "n_destaques": 45,
     "n_municipios": 184,
     "nome": "Ceará",
     "tendencia_media": -0.97
@@ -44,6 +50,7 @@
   "DF": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 88.8,
+    "n_destaques": 0,
     "n_municipios": 1,
     "nome": "Distrito Federal",
     "tendencia_media": 0.21
@@ -51,6 +58,7 @@
   "ES": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 81.1,
+    "n_destaques": 19,
     "n_municipios": 78,
     "nome": "Espírito Santo",
     "tendencia_media": -1.9
@@ -58,6 +66,7 @@
   "GO": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 84.0,
+    "n_destaques": 45,
     "n_municipios": 246,
     "nome": "Goiás",
     "tendencia_media": -0.55
@@ -65,6 +74,7 @@
   "MA": {
     "cluster_predominante": "Cobertura em queda e instavel",
     "cobertura_media": 75.4,
+    "n_destaques": 73,
     "n_municipios": 217,
     "nome": "Maranhão",
     "tendencia_media": -1.04
@@ -72,6 +82,7 @@
   "MG": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 82.2,
+    "n_destaques": 232,
     "n_municipios": 853,
     "nome": "Minas Gerais",
     "tendencia_media": -0.68
@@ -79,6 +90,7 @@
   "MS": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 84.1,
+    "n_destaques": 21,
     "n_municipios": 79,
     "nome": "Mato Grosso do Sul",
     "tendencia_media": -0.98
@@ -86,6 +98,7 @@
   "MT": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 84.8,
+    "n_destaques": 33,
     "n_municipios": 141,
     "nome": "Mato Grosso",
     "tendencia_media": -0.2
@@ -93,6 +106,7 @@
   "PA": {
     "cluster_predominante": "Cobertura em queda e instavel",
     "cobertura_media": 71.6,
+    "n_destaques": 34,
     "n_municipios": 144,
     "nome": "Pará",
     "tendencia_media": -1.13
@@ -100,6 +114,7 @@
   "PB": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 75.5,
+    "n_destaques": 49,
     "n_municipios": 223,
     "nome": "Paraíba",
     "tendencia_media": 1.29
@@ -107,6 +122,7 @@
   "PE": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 74.8,
+    "n_destaques": 28,
     "n_municipios": 185,
     "nome": "Pernambuco",
     "tendencia_media": -0.19
@@ -114,6 +130,7 @@
   "PI": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 67.4,
+    "n_destaques": 66,
     "n_municipios": 224,
     "nome": "Piauí",
     "tendencia_media": 1.94
@@ -121,6 +138,7 @@
   "PR": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 84.2,
+    "n_destaques": 77,
     "n_municipios": 399,
     "nome": "Paraná",
     "tendencia_media": -0.36
@@ -128,6 +146,7 @@
   "RJ": {
     "cluster_predominante": "Cobertura em queda e instavel",
     "cobertura_media": 77.2,
+    "n_destaques": 37,
     "n_municipios": 92,
     "nome": "Rio de Janeiro",
     "tendencia_media": -2.74
@@ -135,6 +154,7 @@
   "RN": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 73.4,
+    "n_destaques": 60,
     "n_municipios": 167,
     "nome": "Rio Grande do Norte",
     "tendencia_media": 0.54
@@ -142,6 +162,7 @@
   "RO": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 83.6,
+    "n_destaques": 10,
     "n_municipios": 52,
     "nome": "Rondônia",
     "tendencia_media": -0.65
@@ -149,6 +170,7 @@
   "RR": {
     "cluster_predominante": "Cobertura baixa, em recuperacao",
     "cobertura_media": 58.7,
+    "n_destaques": 6,
     "n_municipios": 15,
     "nome": "Roraima",
     "tendencia_media": -2.16
@@ -156,6 +178,7 @@
   "RS": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 82.3,
+    "n_destaques": 122,
     "n_municipios": 497,
     "nome": "Rio Grande do Sul",
     "tendencia_media": -0.15
@@ -163,6 +186,7 @@
   "SC": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 83.5,
+    "n_destaques": 53,
     "n_municipios": 295,
     "nome": "Santa Catarina",
     "tendencia_media": -0.23
@@ -170,6 +194,7 @@
   "SE": {
     "cluster_predominante": "Cobertura em queda e instavel",
     "cobertura_media": 78.2,
+    "n_destaques": 39,
     "n_municipios": 75,
     "nome": "Sergipe",
     "tendencia_media": -2.87
@@ -177,6 +202,7 @@
   "SP": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 80.0,
+    "n_destaques": 213,
     "n_municipios": 645,
     "nome": "São Paulo",
     "tendencia_media": -0.62
@@ -184,6 +210,7 @@
   "TO": {
     "cluster_predominante": "Cobertura alta e estavel",
     "cobertura_media": 83.8,
+    "n_destaques": 30,
     "n_municipios": 139,
     "nome": "Tocantins",
     "tendencia_media": -1.11

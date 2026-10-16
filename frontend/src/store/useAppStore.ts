@@ -15,6 +15,12 @@ interface AppState {
   ufLoading: string | null;
   ufError: string | null;
 
+  // estado de UI efemero: estado sob o cursor no mapa nacional (nao vem da
+  // URL, ao contrario da selecao/drill-down) — alimenta o callout
+  // contextual do redesign (ver Callouts.tsx)
+  hoveredUf: string | null;
+  setHoveredUf: (uf: string | null) => void;
+
   loadBoot: () => Promise<void>;
   ensureUF: (uf: string) => Promise<void>;
 }
@@ -35,6 +41,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   ufCache: {},
   ufLoading: null,
   ufError: null,
+
+  hoveredUf: null,
+  setHoveredUf: (uf) => set({ hoveredUf: uf }),
 
   async loadBoot() {
     set({ bootLoading: true, bootError: null });

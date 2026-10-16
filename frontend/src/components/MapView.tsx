@@ -21,6 +21,7 @@ export function MapView() {
   const ufCache = useAppStore((s) => s.ufCache);
   const ufLoading = useAppStore((s) => s.ufLoading);
   const ensureUF = useAppStore((s) => s.ensureUF);
+  const setHoveredUf = useAppStore((s) => s.setHoveredUf);
   const { vacina, ano } = useFiltros();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -40,6 +41,10 @@ export function MapView() {
   useEffect(() => {
     if (uf) ensureUF(uf);
   }, [uf, ensureUF]);
+
+  // limpa o hover ao sair do mapa (troca de rota/desmonte), pra nao deixar
+  // o callout contextual "preso" num estado que nao esta mais sob o cursor
+  useEffect(() => () => setHoveredUf(null), [setHoveredUf]);
 
   function resetZoom() {
     setZoom(1);
@@ -174,13 +179,8 @@ export function MapView() {
                     className={`state-path${uf === ufCode ? " is-selected" : ""}`}
                     d={s.d}
                     style={{ fill: colorFor(v) }}
-                    onMouseMove={(e) =>
-                      showTooltip(
-                        e,
-                        `<b>${s.name}</b><br>${v !== null ? `<span class="tt-val">${fmtPct(v)}</span> de cobertura média` : "sem dado"}`,
-                      )
-                    }
-                    onMouseLeave={() => setTooltip(null)}
+                    onMouseMove={() => setHoveredUf(ufCode)}
+                    onMouseLeave={() => setHoveredUf(null)}
                     onClick={() => irPara(`/${ufCode}`)}
                   />
                 );
@@ -286,29 +286,33 @@ function Tooltip({ tooltip }: { tooltip: TooltipState | null }) {
   );
 }
 
+const LEGEND_BANDS = [
+  { cor: "#B91C1C", label: "Crítico", range: `< ${CORTE_BAIXO}%` },
+  { cor: "#E8920D", label: "Baixa", range: `${CORTE_BAIXO}–${CORTE_MEDIO}%` },
+  { cor: "#52A675", label: "Próxima da meta", range: `${CORTE_MEDIO}–${CORTE_ALTO}%` },
+  { cor: "#157347", label: "Na meta", range: `${CORTE_ALTO}%+` },
+];
+
 function Legend() {
   return (
     <div className="legend-bar">
       <div className="legend-title">Cobertura</div>
-      <div className="legend-strip">
-        <span style={{ background: "#B91C1C" }} />
-        <span style={{ background: "#E8920D" }} />
-        <span style={{ background: "#52A675" }} />
-        <span style={{ background: "#157347" }} />
-      </div>
-      <div className="legend-label-row">
-        <span>&lt;{CORTE_BAIXO}%</span>
-        <span>
-          {CORTE_BAIXO}–{CORTE_MEDIO}%
-        </span>
-        <span>
-          {CORTE_MEDIO}–{CORTE_ALTO}%
-        </span>
-        <span>{CORTE_ALTO}%+</span>
-      </div>
-      <div className="legend-nodata">
-        <span />
-        sem dado
+      <div className="legend-chips">
+        {LEGEND_BANDS.map((b) => (
+          <div className="legend-chip" key={b.label}>
+            <span className="legend-dot" style={{ background: b.cor }} />
+            <span className="legend-chip-text">
+              <span className="legend-chip-label">{b.label}</span>
+              <span className="legend-chip-range">{b.range}</span>
+            </span>
+          </div>
+        ))}
+        <div className="legend-chip">
+          <span className="legend-dot" style={{ background: "var(--nodata)" }} />
+          <span className="legend-chip-text">
+            <span className="legend-chip-label">Sem dado</span>
+          </span>
+        </div>
       </div>
     </div>
   );

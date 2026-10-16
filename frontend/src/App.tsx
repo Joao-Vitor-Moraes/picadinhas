@@ -3,9 +3,13 @@ import { Navigate, Route, Routes, useSearchParams } from "react-router-dom";
 import { useAppStore } from "./store/useAppStore";
 import { useRota } from "./hooks/useRota";
 import { TopBar } from "./components/TopBar";
+import { Hero } from "./components/Hero";
+import { NationalToolbar } from "./components/NationalToolbar";
 import { StageIntro } from "./components/StageIntro";
 import { MapView } from "./components/MapView";
+import { Callouts } from "./components/Callouts";
 import { StatRail } from "./components/StatRail";
+import { NationalFooter } from "./components/NationalFooter";
 import { RankingTable } from "./components/RankingTable";
 
 function App() {
@@ -36,9 +40,10 @@ function App() {
 }
 
 function Pagina() {
-  const { uf } = useRota();
+  const { uf, view } = useRota();
   const resumoEstados = useAppStore((s) => s.resumoEstados);
   const [searchParams] = useSearchParams();
+  const isNational = view === "national";
 
   // UF desconhecida na URL (ex: link quebrado ou digitado errado) -> volta pro nacional
   if (uf && resumoEstados && !resumoEstados[uf]) {
@@ -46,16 +51,29 @@ function Pagina() {
   }
 
   return (
-    <div className="app">
+    <div className={`app${isNational ? " app-national" : ""}`}>
       <TopBar />
-
-      <div className="stage">
-        <StageIntro />
-        <div className="map-col">
-          <MapView />
-          <StatRail />
+      {isNational ? (
+        <>
+          <Hero />
+          <NationalToolbar />
+          <div className="map-col">
+            <Callouts>
+              <MapView />
+            </Callouts>
+            <StatRail />
+          </div>
+          <NationalFooter />
+        </>
+      ) : (
+        <div className="stage">
+          <StageIntro />
+          <div className="map-col">
+            <MapView />
+            <StatRail />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="note-strip">
         <strong>Picadinhas</strong> — cobertura vacinal nos municípios brasileiros (BCG,

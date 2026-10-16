@@ -31,6 +31,7 @@ export interface ResumoEstados {
     cobertura_media: number;
     tendencia_media: number;
     cluster_predominante: string;
+    n_destaques: number;
   };
 }
 

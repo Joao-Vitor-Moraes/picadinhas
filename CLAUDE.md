@@ -274,6 +274,55 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     `prefers-reduced-motion: reduce`.
   - **Roteamento por URL** (ver acima, "Atualização") e fallback de SPA pra
     produção.
+- Dia 6 Parte 4 — redesign visual em branch separada (`redesign`, a partir da
+  main, sem merge ainda): direção editorial/infográfico (banner, tipografia
+  serifada, callouts) em vez do visual de dashboard original. Só
+  layout/tipografia/composição mudou — arquitetura de dados, carregamento sob
+  demanda, Zustand, roteamento e lógica de filtro/busca não foram
+  reescritos. Paleta de cor do semáforo (crítico/baixa/próxima da
+  meta/na meta) e `--accent` não mudaram, só os tons neutros (papel/tinta
+  mais quentes) — a referência visual usa azul pra "baixa cobertura", o que
+  quebrava a convenção de semáforo já decidida, então as cores da
+  referência não foram copiadas, só a composição.
+  - **Fonte da UF "em destaque"**: `n_destaques` (contagem de linhas de
+    `data/processed/destaques_completo.csv` por `uf`) foi adicionado ao
+    `resumo_estados.json` via `notebooks/gerar_resumo_estados.py` —
+    reaproveita o sinal de queda atípica do Dia 5 em vez de uma métrica nova.
+  - **Callouts editoriais (`frontend/src/components/Callouts.tsx`) são
+    contextuais ao hover, não fixos**: passar o mouse sobre um estado no
+    mapa nacional mostra um card só (cobertura média, tendência — slope de
+    regressão do Dia 4, não delta literal do último ano —, situação vs. meta
+    de 88% e `n_destaques`) com linha-guia até o estado; sem hover, nenhum
+    card aparece. O card flutua (`position:absolute`, calculado em JS) em
+    vez de reservar coluna fixa no layout — uma coluna sempre reservada
+    (mesmo vazia) foi o que deixava o mapa nacional pequeno demais numa
+    iteração intermediária. O lado esquerda/direita segue a posição do
+    estado no mapa. Gatilho é hover (não click), porque clicar num estado já
+    navega pra página do estado. Tooltip antigo do mapa nacional foi
+    removido (ficava redundante/sobreposto ao callout) — estado/município
+    mantêm o tooltip original.
+  - **Donut → meter**: a skill de dataviz marca donut/pie pra comparar
+    valores próximos como anti-padrão explícito (as 5 vacinas ficam entre
+    ~88–93% em 2023), e recomenda "Meter" (anel de progresso de UM valor só)
+    pra "uma razão única contra um limite" — por isso o rodapé nacional
+    (`NationalFooter.tsx`) usa 5 anéis de progresso individuais, não um
+    gráfico de pizza/donut categórico.
+  - **Filtro nacional virou barra horizontal** (`NationalToolbar.tsx`,
+    só vacina + link pra tabela) em vez da coluna lateral de 300px
+    (`StageIntro`), que agora só é usada em estado/município — libera
+    largura pro mapa nacional, que é maior que o de estado/município por
+    decisão explícita (card central da tela), mas sem exagerar (ficou
+    grande demais numa iteração anterior e foi recalibrado pra baixo).
+  - **Imagem de fundo do Hero** (`frontend/public/images/hero-bg.jpg`, não
+    versionada): `.hero-banner` no CSS usa 3 camadas — véu escuro (sempre) >
+    foto (só aparece se o arquivo existir) > gradiente CSS (fallback,
+    `background-image` com 404 fica transparente na camada, não derruba a
+    seguinte). Pra trocar o placeholder pela foto final, só salvar o
+    arquivo nesse caminho, nada mais muda.
+  - Self-QA visual feito no Chrome (`npm run dev`) em cada rodada de ajuste:
+    nacional (hover em estados dos dois lados do mapa, sem hover), estado,
+    município, filtro de ano/vacina, busca, zoom de município, navegação por
+    URL e botão voltar — sem regressão.
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
@@ -293,6 +342,9 @@ queda atípica por z-score calculado por ano (limiar z < -2), 1.492 casos em
 `data/processed/destaques_quedas_atipicas.csv`. Parte 3: frase explicativa
 combinando os dois sinais (perfil isolado vs. padrão mais amplo), tabela final em
 `data/processed/destaques_completo.csv` (ver detalhes de cada parte acima) |
-Dia 6 Frontend 🔄 em andamento (ver detalhes acima: resumo por estado, série
-nacional e scaffold do app React testado no navegador; faltam port do
-restante do design/polimento e revisão final) | Dia 7 Deploy
+Dia 6 Frontend ✅ concluído — app React (Vite+TS) com Zustand, roteamento por
+URL (`/`, `/:uf`, `/:uf/:municipio`), drill-down Brasil→estado→município com
+zoom e animação de transição, filtro de vacina/ano, busca e ranking; redesign
+editorial aprovado e mergeado na main (ver detalhes acima: callouts
+contextuais no hover do mapa nacional, header com imagem de fundo, anéis de
+progresso por vacina no rodapé nacional) | Dia 7 Deploy

@@ -456,6 +456,87 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     município, filtro de ano/vacina, busca, zoom de município, navegação por
     URL e botão voltar — sem regressão.
 
+- **Extensão da série para 2024-2026 a partir do microdado do PNI** (decisão
+  tomada depois da investigação que mostrou o VacinaBR parado em 2023, ver
+  acima). O VacinaBR não publica mais, mas o **microdado bruto do PNI continua
+  sendo publicado** em dadosabertos.saude.gov.br (um ZIP de CSV por mês, ~2 GB
+  cada), assim como o SINASC. Então a cobertura de 2024-2026 foi **reconstruída
+  do zero** com a mesma fórmula do VacinaBR: doses aplicadas ÷ nascidos vivos.
+  - **Etapa 0 (validação, antes de gerar qualquer dado):** reconstruiu-se 2023,
+    ano que já conhecemos, pra medir se a metodologia bate. Resultado:
+    correlação de 0,90 a 0,975 com o dado do VacinaBR, mediana de 3,4 p.p. de
+    diferença. Pentavalente (razão 1,033) e Poliomielite (1,011) bateram quase
+    exatamente; BCG (1,072) e Hepatite B (1,080) vieram inflados.
+  - **Diagnóstico do viés:** o erro estava na regra de dose, não no
+    denominador (o SINASC reproduziu o denominador do VacinaBR com 0,002% de
+    erro na Tríplice e 0,22% nas outras). Investigando dez/2023 com
+    `co_paciente` e `ds_origem_registro`, confirmou-se **dupla contagem**: a
+    mesma dose aparece como registro original E como "transcrição de
+    caderneta". Atingia 4,8% das doses de BCG e 5,2% de HepB (em ~60% dos
+    casos com transcrição envolvida), e apenas 1,0% da Tríplice Viral.
+  - **Dedup conservadora (decisão):** a chave é (`co_paciente`, `dt_vacina`,
+    `ds_tipo_dose`) — mesma pessoa, mesma data, mesmo tipo de dose. Testou-se
+    também uma dedup agressiva (1 paciente = no máximo 1 dose), mas ela
+    **passa do ponto**: levava BCG/HepB de +7% pra -5%, trocando um viés por
+    outro. Com a conservadora, as 5 vacinas caem pra 1,013-1,024, dentro da
+    faixa onde Penta/Pólio já estavam sem correção nenhuma.
+  - A dedup é aplicada sobre o **ano inteiro**, não mês a mês, pra capturar
+    duplicata entre meses diferentes. Como o `hash()` nativo do Python é
+    randomizado por processo, a chave usa `pd.util.hash_pandas_object`, que é
+    determinístico — sem isso a dedup entre arquivos processados em paralelo
+    não funcionaria.
+  - Mapeamento fechado (microdado → nossas 5 vacinas): `BCG`, `HB`,
+    `Penta` + `Hexa acelular`, `VIP`, `SCR`. **`Penta acelular` fica de fora**
+    porque é DTPa/VIP/Hib, sem hepatite B — não tem os 5 componentes que a
+    metodologia do VacinaBR exige. Município = `co_municipio_paciente`
+    (residência, igual ao painel InfoMS que o VacinaBR usou), não
+    estabelecimento — 15,6% das doses divergem entre os dois. Todas as
+    estratégias de vacinação entram, e transcrição de caderneta também.
+  - **Limitação sem solução — Hepatite B:** o microdado só tem idade em anos
+    inteiros, então não dá pra isolar "0 a 30 dias". A aproximação usada é
+    HepB + idade 0 + primeira dose, que inclui qualquer dose no primeiro ano
+    de vida. É a vacina com maior viés residual, e isso não é corrigível com
+    essa fonte.
+  - **2026 é ano PARCIAL — jan a ago, 8 meses.** O PNI publicou até setembro,
+    mas o SINASC 2026 (2ª prévia) só vai até agosto; usar 9 meses de doses
+    contra 8 de nascidos vivos inflaria a cobertura ~12% por puro
+    descasamento, então o numerador foi cortado em agosto. Mesmo alinhado,
+    **2026 não é comparável a um ano completo**: a Tríplice Viral de 2026 sai
+    em ~64% porque o numerador tem 8 meses de doses mas o denominador é a
+    coorte inteira nascida em 2025, e Penta/Pólio ficam subestimadas porque
+    bebês nascidos no fim da janela ainda não tiveram tempo de completar o
+    esquema de 3 doses.
+  - **Arquivos (o original NÃO foi alterado):**
+    - `data/processed/cobertura_mvp_2014_2023.csv` — intocado, fonte VacinaBR.
+    - `data/processed/cobertura_reconstruida_pni_2024_2026.csv` (83.552
+      linhas) — só os anos novos.
+    - `data/processed/cobertura_mvp_2014_2026.csv` (357.084 linhas) — a junção
+      dos dois, que é o que o resto do pipeline deve passar a consumir.
+    - Todos os três têm a coluna **`fonte`** (`vacinabr` vs `pni_reconstruido`)
+      e as colunas `meses_dado_numerador`, `meses_dado_denominador` e
+      `ano_parcial`, pra que o frontend possa sinalizar dado estimado e ano
+      incompleto. **Qualquer visualização que inclua 2024-2026 precisa
+      mostrar essa distinção** — não é o mesmo dado que 2014-2023.
+  - Taxa de duplicata removida na prática: 2024 e 2025 ficaram em 2,9% do
+    total (BCG -5,1%/-5,4%, HepB -5,3%, Penta ~-1,3%, Pólio ~-1,0%, Tríplice
+    ~-0,7%), batendo com o que o diagnóstico de dez/2023 previu. **2026 removeu
+    só 0,5%** — sinal de que as transcrições de caderneta ainda não foram
+    lançadas; ou seja, o dado de 2026 ainda vai mudar conforme o registro se
+    completa.
+  - **Scripts do pipeline** (em `notebooks/`, pra que 2024-2026 seja
+    reproduzível): `pni_capturar_mes.py` (baixa e filtra um mês, gravando as
+    chaves de dedup), `pni_sinasc_anos.py` (denominador + relatório de
+    completude mensal) e `pni_montar_cobertura.py` (dedup anual + geração dos
+    CSVs finais). O capturador roda um mês por vez, e vários em paralelo é só
+    disparar vários processos.
+  - Operacional: ~70 GB de download (33 meses). Os ZIPs são lidos em
+    streaming, descomprimindo o deflate na memória sem gravar os ~280 GB
+    descompactados em disco. O gargalo é CPU (parsing), não rede — com 8
+    processos paralelos o pipeline inteiro leva ~1h. **O S3 derruba conexão de
+    vez em quando** (`ConnectionResetError`): sem retentativa um mês some
+    silenciosamente e o total anual sai errado sem nenhum aviso, então o
+    capturador tem 4 tentativas com espera progressiva.
+
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
 Dia 3 Limpeza & EDA ✅ concluído (Parte 1 filtragem segura + CSV limpo; Parte 2

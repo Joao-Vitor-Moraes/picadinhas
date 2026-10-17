@@ -136,17 +136,19 @@ a {
   margin: 0 -32px 36px;
   padding: 52px 32px 40px;
   overflow: hidden;
-  /* 3 camadas, a primeira listada pinta por cima: véu escuro (sempre
-     presente, garante legibilidade do texto) > foto (so aparece quando o
-     arquivo existir) > gradiente CSS (fallback, so visivel onde a foto
-     falhar ao carregar — um background-image que da 404 fica transparente
-     nessa camada, nao derruba as camadas seguintes). Pra trocar o
-     placeholder pela foto final, salve o arquivo em
-     frontend/public/images/hero-bg.jpg (crie a pasta se nao existir) —
-     nada mais precisa mudar, o CSS ja aponta pra esse caminho. */
+  /* 4 camadas, a primeira listada pinta por cima: vinheta radial (escurece
+     especificamente atras do bloco de texto, centrada no .hero-content,
+     pra legibilidade mesmo quando a foto for clara bem ali) > veu
+     diagonal (escurece a faixa inteira, mais forte nas pontas) > foto (so
+     aparece quando o arquivo existir) > gradiente CSS (fallback, so
+     visivel onde a foto falhar ao carregar — um background-image que da
+     404 fica transparente nessa camada, nao derruba as camadas
+     seguintes). Foto final em frontend/public/images/hero-bg.png (copiada
+     de design-reference/hero-bg.png). */
   background:
-    linear-gradient(165deg, rgba(10, 26, 20, 0.55) 0%, rgba(10, 26, 20, 0.3) 55%, rgba(10, 26, 20, 0.6) 100%),
-    url("/images/hero-bg.jpg") center/cover no-repeat,
+    radial-gradient(ellipse 60% 130% at 50% 50%, rgba(6, 16, 13, 0.75) 0%, rgba(6, 16, 13, 0.45) 55%, rgba(6, 16, 13, 0) 85%),
+    linear-gradient(165deg, rgba(10, 26, 20, 0.6) 0%, rgba(10, 26, 20, 0.42) 55%, rgba(10, 26, 20, 0.62) 100%),
+    url("/images/hero-bg.png") center/cover no-repeat,
     linear-gradient(165deg, #1b3a30 0%, #2a5143 42%, #3c6b52 72%, #5c8863 100%);
   color: #fdfbf4;
 }
@@ -176,6 +178,7 @@ a {
   letter-spacing: -0.01em;
   line-height: 1.08;
   margin: 0 0 10px;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.45), 0 1px 3px rgba(0, 0, 0, 0.4);
 }
 .hero-subtitle {
   font-size: 13px;
@@ -184,6 +187,7 @@ a {
   max-width: 44ch;
   line-height: 1.6;
   margin: 0 0 14px;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
 }
 .hero-rule {
   display: block;

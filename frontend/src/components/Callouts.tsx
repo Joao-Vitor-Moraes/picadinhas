@@ -31,7 +31,8 @@ function montarCallout(uf: string, d: ResumoEstados[string]) {
     tendenciaTexto: `${sinal}${d.tendencia_media.toFixed(2).replace(".", ",")} p.p./ano`,
     situacaoTexto: statusText(w),
     situacaoOk: w === "ok" || w === "near",
-    destaques: d.n_destaques,
+    quedasBruscas: d.n_destaques,
+    riscoAlto: d.n_municipios_risco_alto,
   };
 }
 
@@ -129,8 +130,14 @@ export function Callouts({ children }: { children: ReactNode }) {
                 <strong className={callout.situacaoOk ? "ok" : "bad"}>{callout.situacaoTexto}</strong>
               </div>
               <div className="callout-stat">
-                <span>Destaques (Dia 5)</span>
-                <strong>{callout.destaques.toLocaleString("pt-BR")} casos</strong>
+                <span>Quedas bruscas registradas</span>
+                <strong>{callout.quedasBruscas.toLocaleString("pt-BR")} casos</strong>
+              </div>
+              <div className="callout-stat">
+                <span>Risco alto pro próximo ano</span>
+                <strong className={callout.riscoAlto > 0 ? "bad" : undefined}>
+                  {callout.riscoAlto.toLocaleString("pt-BR")} municípios
+                </strong>
               </div>
             </div>
           </div>

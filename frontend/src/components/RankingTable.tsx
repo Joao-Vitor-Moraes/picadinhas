@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import { useRota } from "../hooks/useRota";
 import { useFiltros } from "../hooks/useFiltros";
-import { fmtPct, statusText, statusWord } from "../utils/format";
+import { fmtPct, riscoCor, riscoTexto, statusText, statusWord } from "../utils/format";
+import type { RiscoFaixa } from "../utils/format";
 
 export function RankingTable() {
   const { uf, municipioIbge6, view } = useRota();
@@ -28,6 +29,7 @@ export function RankingTable() {
           code: ufCode,
           n: info.n_municipios,
           v: info.cobertura_media as number | null,
+          risco: null as RiscoFaixa | null,
         }))
         .sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
     }
@@ -38,7 +40,15 @@ export function RankingTable() {
     return Object.entries(ufData.dados.meta_municipios)
       .map(([ibge6, meta]) => {
         const v = ufData.dados.series[ibge6]?.[ano]?.[vacina]?.cob ?? null;
-        return { key: ibge6, rota: ibge7PorIbge6[ibge6] ?? ibge6, name: meta.nome, code: ibge6, n: 1, v };
+        return {
+          key: ibge6,
+          rota: ibge7PorIbge6[ibge6] ?? ibge6,
+          name: meta.nome,
+          code: ibge6,
+          n: 1,
+          v,
+          risco: meta.risco_faixa,
+        };
       })
       .sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
   }, [isNational, resumoEstados, uf, ufCache, ano, vacina]);
@@ -91,6 +101,7 @@ export function RankingTable() {
             {isNational && <th className="num-col">Municípios</th>}
             <th className="num-col">Cobertura</th>
             <th>Situação</th>
+            {!isNational && <th title="Risco de queda brusca no próximo ano, estimado com base no histórico até 2023">Risco</th>}
           </tr>
         </thead>
         <tbody>
@@ -112,6 +123,13 @@ export function RankingTable() {
                 {isNational && <td className="num-col num">{r.n.toLocaleString("pt-BR")}</td>}
                 <td className="num-col num">{fmtPct(r.v)}</td>
                 <td>{w ? <span className={`row-status ${w}`}>{statusText(w)}</span> : "—"}</td>
+                {!isNational && (
+                  <td>
+                    <span style={{ color: riscoCor(r.risco), fontWeight: 600, fontSize: 12 }}>
+                      {riscoTexto(r.risco)}
+                    </span>
+                  </td>
+                )}
               </tr>
             );
           })}

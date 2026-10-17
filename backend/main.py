@@ -2,7 +2,9 @@
 Backend FastAPI do Picadinhas — expansao de escopo explicita em relacao ao
 MVP original (ver CLAUDE.md), adicionada pra rodar deteccao de comunidades
 (Louvain) sobre o grafo de similaridade do Dia 5
-(data/processed/grafo_similaridade_arestas.csv).
+(data/processed/grafo_similaridade_arestas.csv) e aplicar o modelo de risco
+de queda atipica (data/processed/modelo_risco.json, ver
+notebooks/notebook04_risco.ipynb pro treino).
 
 Deteccao de comunidade e global por natureza (maximiza modularidade em
 relacao a densidade do grafo inteiro) — por isso a particao e computada uma
@@ -12,10 +14,20 @@ entrada (CSV gerado pelo pipeline do Dia 5) e estatico entre deploys,
 recomputar a cada request daria exatamente o mesmo resultado (Louvain e
 deterministico com seed fixa) e so gastaria CPU/latencia a toa.
 
+O risco de queda atipica segue a mesma logica: o modelo (coeficientes de
+regressao logistica) foi TREINADO offline no notebook04 — o backend nunca
+treina nada, so carrega os coeficientes e aplica predict() (um produto
+escalar + sigmoide, barato) sobre as features de cada municipio, que
+tambem sao estaticas entre deploys (vem de clusters_municipios_mvp.csv).
+Por isso o risco de todos os 5.570 municipios e calculado uma unica vez no
+startup, junto com as comunidades, em vez de recalculado por request.
+
 Rodar local: `uvicorn backend.main:app --reload` a partir da raiz do repo
 (usa o mesmo .venv do pipeline Python).
 """
 
+import json
+import math
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -27,6 +39,7 @@ from fastapi.middleware.cors import CORSMiddleware
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 ARESTAS_CSV = DATA_DIR / "grafo_similaridade_arestas.csv"
 CLUSTERS_CSV = DATA_DIR / "clusters_municipios_mvp.csv"
+MODELO_RISCO_JSON = DATA_DIR / "modelo_risco.json"
 
 # Preenchido no startup (ver lifespan abaixo) — cache em memoria da
 # particao de comunidades + metadados por municipio + vizinhos k-NN.
@@ -62,6 +75,46 @@ def detectar_comunidades(grafo: nx.Graph) -> dict[str, int]:
     }
 
 
+def calcular_risco(clusters: pd.DataFrame, modelo: dict) -> dict[str, dict]:
+    # Reconstroi exatamente as mesmas features/dummies/padronizacao do
+    # treino (notebook04, Etapa F) — "causal em T=2023" = historico inteiro
+    # 2014-2023, que e o que clusters_municipios_mvp.csv ja tem.
+    media = modelo["scaler_mean"]
+    desvio = modelo["scaler_std"]
+    coef = modelo["coeficientes"]
+    cortes = modelo["cortes_risco"]
+
+    colunas_continuas = {
+        "media_causal": "media_cobertura",
+        "variabilidade_causal": "variabilidade_cobertura",
+        "tendencia_causal": "tendencia_cobertura",
+        "isolamento_causal": "isolamento_similaridade",
+    }
+
+    risco_por_no: dict[str, dict] = {}
+    for linha in clusters.itertuples():
+        z = coef["intercepto"]
+        for i, (nome_causal, coluna) in enumerate(colunas_continuas.items()):
+            valor_padronizado = (getattr(linha, coluna) - media[i]) / desvio[i]
+            z += coef[nome_causal] * valor_padronizado
+
+        nome_cluster = linha.nome_cluster
+        z += coef["cluster_baixa_recuperacao"] * (1.0 if "recuperacao" in nome_cluster else 0.0)
+        z += coef["cluster_queda_instavel"] * (1.0 if "instavel" in nome_cluster else 0.0)
+
+        probabilidade = 1.0 / (1.0 + math.exp(-z))
+        if probabilidade >= cortes["alto"]:
+            faixa = "alto"
+        elif probabilidade >= cortes["medio"]:
+            faixa = "medio"
+        else:
+            faixa = "baixo"
+
+        risco_por_no[linha.ibge6] = {"probabilidade": round(probabilidade, 4), "faixa": faixa}
+
+    return risco_por_no
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     arestas = pd.read_csv(
@@ -75,6 +128,10 @@ async def lifespan(app: FastAPI):
 
     grafo = montar_grafo(arestas)
     comunidade_por_no = detectar_comunidades(grafo)
+
+    with open(MODELO_RISCO_JSON, encoding="utf-8") as f:
+        modelo_risco = json.load(f)
+    risco_por_no = calcular_risco(clusters, modelo_risco)
 
     # vizinhos k-NN de cada municipio, na direcao original do Dia 5
     # (ibge6_origem -> seus 5 mais proximos), com a distancia bruta pra
@@ -91,11 +148,15 @@ async def lifespan(app: FastAPI):
     STATE["vizinhos_por_no"] = vizinhos_por_no
     STATE["num_comunidades"] = len(set(comunidade_por_no.values()))
     STATE["grafo"] = grafo
+    STATE["risco_por_no"] = risco_por_no
+    STATE["modelo_risco_metadados"] = modelo_risco["metadados"]
 
     print(
         f"[startup] grafo: {grafo.number_of_nodes()} nos, "
         f"{grafo.number_of_edges()} arestas | "
-        f"{STATE['num_comunidades']} comunidades detectadas"
+        f"{STATE['num_comunidades']} comunidades detectadas | "
+        f"risco calculado para {len(risco_por_no)} municipios "
+        f"(AUC-ROC teste do modelo: {modelo_risco['metadados']['auc_roc_teste']:.3f})"
     )
 
     yield
@@ -119,6 +180,7 @@ def _municipio_info(ibge6: str) -> dict:
         "nome_municipio": meta["nome_municipio"] if meta else None,
         "uf": meta["uf"] if meta else None,
         "comunidade": STATE["comunidade_por_no"].get(ibge6),
+        "risco": STATE["risco_por_no"].get(ibge6),
     }
 
 

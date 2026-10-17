@@ -43,6 +43,120 @@ centro→vizinho). Frontend consome via `VITE_API_BASE_URL` (padrão
 decidida, fica pro Dia 7). Resto do app (mapa, ranking, filtros, séries)
 continua 100% estático, sem depender do backend.
 
+**Atualização (mesma branch): modelo de risco de queda atípica + grafo
+explorável.** Treinado um classificador (regressão logística em numpy puro,
+mesmo padrão do KMeans) que aprende, a partir do perfil causal de um
+município até o ano T, a probabilidade de queda atípica em T+1 — aplicado
+em T=2023 pra gerar "risco para 2024" por município
+(`notebooks/notebook04_risco.ipynb`, artefato de produção em
+`data/processed/modelo_risco.json`).
+- **Vazamento temporal (ponto central):** as features existentes em
+  `clusters_municipios_mvp.csv` são calculadas sobre 2014-2023 inteiro, então
+  usá-las pra prever T+1 de qualquer T<2023 vaza o futuro pro passado. Pra
+  treinar, todas as features (inclusive `isolamento_similaridade` e `cluster`,
+  que comparam todos os municípios entre si, não são séries por município)
+  foram recalculadas causalmente — o pipeline do Dia 4/5 (padronizar → KMeans
+  K=3 → k-NN K=5 → isolamento) repetido pra cada ano T de 2016 a 2023, usando
+  só dados até T. Validado batendo exatamente com os clusters originais em
+  T=2023 (historico inteiro = "causal" no ultimo ano).
+- Regra de elegibilidade pro treino: >= 3 anos causais até T (senão
+  tendência/variabilidade ficam instáveis com 1-2 pontos) — exclui T=2014/2015.
+- Desbalanceamento (~2,8% positivos): peso de classe (fórmula "balanced"),
+  avaliado por AUC-ROC/AUC-PR (não acurácia).
+- Split temporal (não aleatório, pra não vazar entre anos vizinhos do mesmo
+  município): treino T=2016-2020 (prevê 2017-2021), teste T=2021-2022 (prevê
+  2022-2023).
+- Resultado no teste: AUC-ROC 0,667 (acima do acaso), AUC-PR 0,044 (~1,8x o
+  baseline de 2,4%). Sinal real mas modesto — a causa real de uma queda
+  atípica (decisão administrativa local, falta de insumo etc.) não está nas 6
+  features disponíveis. Documentado explicitamente no artefato como
+  ferramenta de **priorização/triagem**, não previsão precisa.
+- Faixas de risco (baixo/médio/alto) por percentil da probabilidade no
+  conjunto de teste (top 10% = alto, 10-30% = médio), não threshold
+  arbitrário — mesma lógica de `percentil_isolamento` do Dia 5.
+- **Aplicação em 2023 não precisa recalcular nada**: features causais em
+  T=2023 = histórico 2014-2023 inteiro = o que `clusters_municipios_mvp.csv`
+  já tem. Por isso o backend só aplica os coeficientes salvos (produto
+  escalar + sigmoide) sobre dados já em memória — nunca treina nem roda
+  KMeans/k-NN em runtime. Risco de todos os 5.570 municípios calculado uma
+  única vez no startup (mesmo padrão das comunidades), cacheado em
+  `STATE["risco_por_no"]`, exposto como campo `risco` (`probabilidade` +
+  `faixa`) dentro de `_municipio_info` — logo já aparece tanto no município
+  centro quanto em cada vizinho de `GET /municipios/{ibge6}/rede` (decisão:
+  campo a mais no endpoint existente, não endpoint separado, porque o caso de
+  uso sempre consome os dois juntos).
+- **Frontend — grafo explorável** (`RedeMunicipio.tsx`): toggle
+  Estático/Explorar. Estático é o painel original (centro fixo no município
+  da rota). Explorar deixa clicar num vizinho pra recentralizar o grafo nele
+  (chama `/rede` de novo com o novo `ibge6`, sem navegar a URL principal do
+  app) e continuar explorando o espaço de similaridade; botão "voltar" some
+  a exploração. Risco usa **duas codificações visuais redundantes** (skill de
+  dataviz, já que a cor do nó está ocupada pela comunidade): tamanho do nó
+  (sequencial, relativo aos 6 nós do painel) + anel de status colorido,
+  reaproveitando a paleta de semáforo já existente no app (`--crit`/`--low`/
+  `--good`) em vez de inventar cores novas. Tooltip mostra o % exato.
+
+**Atualização (mesma branch): risco visível fora do backend + remoção de
+jargão técnico da UI.** O risco só aparecia no painel de grafo (acima) —
+pra ele ser visível em toda a jornada (nacional → estado → município →
+ranking) sem depender do backend estar no ar (o risco é estático entre
+deploys, só muda se o modelo for retreinado), ele também foi exportado como
+dado estático:
+- `notebooks/gerar_risco_municipios.py` (novo): aplica `modelo_risco.json`
+  e grava `risco_probabilidade`/`risco_faixa` em cada `meta_municipios` de
+  `data/processed/municipios/{UF}_municipios.json`, e um agregado nacional
+  em `data/processed/risco_resumo.json` (novo, carregado no boot).
+- `gerar_resumo_estados.py` ganhou `n_municipios_risco_alto` por estado
+  (mesmo cálculo, reaproveitado).
+- UI: card nacional ("Risco alto para 2024"), card de estado, card de
+  município (badge baixo/médio/alto + % estimado), callout do mapa nacional
+  no hover, e coluna "Risco 2024" na tabela de municípios do estado.
+- **Bug encontrado e corrigido de passagem:** o bloco "Estado selecionado"
+  do painel lateral (cobertura média, perfil predominante) estava dentro de
+  um `if (view === "national")`, mas `useRota` só retorna `view: "state"`
+  quando `uf` existe — ou seja, esse bloco nunca era alcançável. Movido pra
+  dentro de `view === "state"` sem `municipioIbge6`, onde de fato renderiza.
+- Jargão removido da UI (ficava visível pro usuário final, não só em
+  comentário de código): rótulos como "Perfil (Dia 4)" e "Quedas atípicas
+  (Dia 5)" viraram "Perfil do município"/"Quedas bruscas registradas";
+  caption técnica "z-score < −2 vs. a média do mesmo ano" virou explicação
+  em português simples. Referências a "Dia N" ficam só em comentários de
+  código (contexto pra manutenção), nunca em texto que o usuário vê.
+
+**Investigação (mesma branch): por que não há dado de 2024/2025/2026 — e
+por que isso não é corrigível só re-baixando o dado.** Confirmado em 3
+fontes: (1) dump bruto baixado em 07/10/2026 (`data/raw/fontes.md`) só tem
+2024 pra HPV, nenhuma das 5 vacinas do MVP; (2) o Anuário VacinaBR 2025 (a
+publicação mais recente do próprio projeto) também só cobre até 2023; (3)
+o PDF oficial de metodologia do VacinaBR (`metodologia_24-2.pdf`, seção
+"Limitações") diz explicitamente que **a atualização da plataforma está sem
+cronograma porque a disponibilização de dados de vacinação está
+interrompida no TABNET/DataSUS** — não é atraso normal de consolidação, é
+uma interrupção da fonte oficial que já dura pelo menos 2 anos (o PDF é de
+out/2024; nosso dump de out/2026 confirma que continua interrompida). O
+"2024" que aparece pra HPV é enganoso: a metodologia explica que o `ano` do
+HPV não é ano de aplicação da dose, é o ano em que a coorte completa 15
+anos — construído retroativamente com doses aplicadas até 2023, igual ao
+resto. Ou seja, **não existe hoje nenhum dado publicamente disponível
+depois de 2023 pra nenhuma das 5 vacinas**, em nenhuma fonte oficial
+brasileira — não é uma falha da nossa coleta.
+- **Decisão consequente:** como o modelo de risco (ver acima) foi treinado
+  pra prever "o ano seguinte ao último dado disponível" e esse ano
+  seguinte era 2024 quando construído, mas hoje (2026) já ficou pra trás
+  sem nunca ter sido validado com dado real, os rótulos na UI foram
+  trocados de "risco para 2024" pra "risco no próximo ano" (genérico), com
+  nota explicando que a estimativa usa histórico até 2023 e que o
+  Ministério da Saúde ainda não divulgou dado mais recente. Variáveis
+  internas (`risco_2024`, `modelo_risco.json` etc.) mantiveram o nome —
+  é só rótulo de UI que mudou, não a lógica do modelo.
+- **Pendência em aberto (não implementada, decisão futura):** se/quando o
+  TABNET voltar a publicar, o pipeline de 2014-2023 (notebooks 01-04) pode
+  ser re-rodado do zero com o dado novo sem mudança de lógica — é só trocar
+  `data/raw/vacinabr-dados-por-municipio.csv` e rodar os notebooks de novo.
+  Não vale a pena tentar uma fonte alternativa (ex: TABNET/InfoMS direto)
+  agora — seria um pipeline de coleta novo, com validação própria, fora do
+  escopo atual.
+
 ## Fonte de dados
 VacinaBR (iqc.org.br/observatorio/vacinabr) — dump completo em
 data/raw/vacinabr-dados-por-municipio.csv (~600MB, fora do git).

@@ -40,3 +40,19 @@ export function statusText(w: StatusWord | null): string {
   if (!w) return "—";
   return { bad: "Crítico", warn: "Baixa cobertura", near: "Próximo da meta", ok: "Na meta" }[w];
 }
+
+// Risco de queda brusca de cobertura em 2024, previsto por um modelo
+// treinado sobre o histórico de cada município (ver CLAUDE.md, branch
+// grafo-comunidades). Reaproveita a mesma paleta de semáforo já usada pra
+// cobertura (--good/--low/--crit) em vez de inventar cores novas.
+export type RiscoFaixa = "baixo" | "medio" | "alto";
+
+export function riscoTexto(faixa: RiscoFaixa | null | undefined): string {
+  if (!faixa) return "—";
+  return { baixo: "Baixo", medio: "Médio", alto: "Alto" }[faixa];
+}
+
+export function riscoCor(faixa: RiscoFaixa | null | undefined): string {
+  if (!faixa) return "var(--ink-faint)";
+  return { baixo: "var(--good)", medio: "var(--low)", alto: "var(--crit)" }[faixa];
+}

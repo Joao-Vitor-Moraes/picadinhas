@@ -1,0 +1,57 @@
+{
+  "metadados": {
+    "descricao": "Regressao logistica (numpy puro) para risco de queda atipica no ano seguinte.",
+    "anos_treino": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020
+    ],
+    "anos_teste": [
+      2021,
+      2022
+    ],
+    "n_treino": 27836,
+    "n_teste": 11138,
+    "auc_roc_teste": 0.667477167781019,
+    "auc_pr_teste": 0.044300078662293824,
+    "taxa_positivos_teste": 0.02379242233794218,
+    "aviso": "Ferramenta de priorizacao/triagem, nao previsao precisa -- AUC-ROC ~0.67 indica sinal real mas modesto."
+  },
+  "features_continuas": [
+    "media_causal",
+    "variabilidade_causal",
+    "tendencia_causal",
+    "isolamento_causal"
+  ],
+  "features_dummies": [
+    "cluster_baixa_recuperacao",
+    "cluster_queda_instavel"
+  ],
+  "scaler_mean": [
+    81.5832908472101,
+    9.810129152529129,
+    -1.4501116575791062,
+    0.14867862222179729
+  ],
+  "scaler_std": [
+    12.159693836724717,
+    6.7283804675950005,
+    5.594697504574515,
+    0.12658655422010462
+  ],
+  "coeficientes": {
+    "intercepto": -0.16174273849788284,
+    "media_causal": 0.39090567295287837,
+    "variabilidade_causal": 0.40219993216617056,
+    "tendencia_causal": 0.5376254110537537,
+    "isolamento_causal": -0.06483805504381976,
+    "cluster_baixa_recuperacao": 0.17376358829639152,
+    "cluster_queda_instavel": -0.33484030407440385
+  },
+  "cortes_risco": {
+    "alto": 0.5756438222921165,
+    "medio": 0.5152588844409025
+  }
+}

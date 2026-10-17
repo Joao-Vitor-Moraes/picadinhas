@@ -4,6 +4,7 @@ import type {
   BrazilStatesPaths,
   RedeMunicipio,
   ResumoEstados,
+  RiscoResumo,
   SerieNacional,
   UFData,
 } from "../types/data";
@@ -13,6 +14,7 @@ interface AppState {
   brazilPaths: BrazilStatesPaths | null;
   resumoEstados: ResumoEstados | null;
   serieNacional: SerieNacional | null;
+  riscoResumo: RiscoResumo | null;
   bootError: string | null;
   bootLoading: boolean;
 
@@ -49,6 +51,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   brazilPaths: null,
   resumoEstados: null,
   serieNacional: null,
+  riscoResumo: null,
   bootError: null,
   bootLoading: false,
 
@@ -66,12 +69,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   async loadBoot() {
     set({ bootLoading: true, bootError: null });
     try {
-      const [brazilPaths, resumoEstados, serieNacional] = await Promise.all([
+      const [brazilPaths, resumoEstados, serieNacional, riscoResumo] = await Promise.all([
         fetchJson<BrazilStatesPaths>("/data/brazil-states-paths.json"),
         fetchJson<ResumoEstados>("/data/resumo_estados.json"),
         fetchJson<SerieNacional>("/data/serie_nacional.json"),
+        fetchJson<RiscoResumo>("/data/risco_resumo.json"),
       ]);
-      set({ brazilPaths, resumoEstados, serieNacional, bootLoading: false });
+      set({ brazilPaths, resumoEstados, serieNacional, riscoResumo, bootLoading: false });
     } catch (err) {
       set({
         bootError: err instanceof Error ? err.message : String(err),

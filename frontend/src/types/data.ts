@@ -32,7 +32,18 @@ export interface ResumoEstados {
     tendencia_media: number;
     cluster_predominante: string;
     n_destaques: number;
+    n_municipios_risco_alto: number;
   };
+}
+
+// Contagem nacional por faixa de risco (ver utils/format.ts, RiscoFaixa) —
+// gerado estaticamente por notebooks/gerar_risco_municipios.py, carregado no
+// boot junto com resumo_estados/serie_nacional (nao depende do backend).
+export interface RiscoResumo {
+  n_total: number;
+  n_baixo: number;
+  n_medio: number;
+  n_alto: number;
 }
 
 export interface SerieNacional {
@@ -51,6 +62,8 @@ export interface MunicipioMeta {
   cluster: string;
   media_cobertura: number;
   tendencia: number;
+  risco_probabilidade: number;
+  risco_faixa: "baixo" | "medio" | "alto";
 }
 
 export interface MunicipioAnoRegistro {
@@ -72,11 +85,21 @@ export interface UFData {
 // Grafo de similaridade + deteccao de comunidades (Louvain), servido pelo
 // backend (ver backend/main.py) — expansao de escopo em relacao ao MVP
 // original (ver CLAUDE.md, secao Arquitetura).
+// Risco de queda atipica no ano seguinte, previsto pelo modelo do backend
+// (regressao logistica treinada offline — ver notebooks/notebook04_risco.ipynb
+// e backend/main.py, calcular_risco). Ferramenta de priorizacao/triagem, nao
+// previsao precisa (AUC-ROC ~0.67 no teste).
+export interface RedeRisco {
+  probabilidade: number;
+  faixa: "baixo" | "medio" | "alto";
+}
+
 export interface RedeNo {
   ibge6: string;
   nome_municipio: string | null;
   uf: string | null;
   comunidade: number | null;
+  risco: RedeRisco | null;
 }
 
 export interface RedeVizinho extends RedeNo {

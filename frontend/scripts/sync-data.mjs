@@ -23,6 +23,7 @@ const arquivosDeTopo = [
   "brazil-states-paths.json",
   "resumo_estados.json",
   "serie_nacional.json",
+  "risco_resumo.json",
 ];
 for (const nome of arquivosDeTopo) {
   await cp(path.join(origem, nome), path.join(destino, nome));

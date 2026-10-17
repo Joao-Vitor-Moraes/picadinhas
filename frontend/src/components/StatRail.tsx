@@ -3,6 +3,7 @@ import { useRota } from "../hooks/useRota";
 import { useFiltros } from "../hooks/useFiltros";
 import { CLUSTER_LABELS, VACINA_LABELS, type VacinaKey } from "../types/data";
 import { Chart } from "./Chart";
+import { RedeMunicipio } from "./RedeMunicipio";
 import { fmtPct } from "../utils/format";
 
 export function StatRail() {
@@ -23,6 +24,7 @@ export function StatRail() {
         ano={ano}
       />
       <Chart />
+      {municipioIbge6 && <RedeMunicipio />}
     </div>
   );
 }

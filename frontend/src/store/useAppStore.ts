@@ -1,5 +1,12 @@
 import { create } from "zustand";
-import type { BrazilStatesPaths, ResumoEstados, SerieNacional, UFData } from "../types/data";
+import { API_BASE_URL } from "../config";
+import type {
+  BrazilStatesPaths,
+  RedeMunicipio,
+  ResumoEstados,
+  SerieNacional,
+  UFData,
+} from "../types/data";
 
 interface AppState {
   // dados carregados no boot (pequenos, sempre na memoria)
@@ -21,8 +28,15 @@ interface AppState {
   hoveredUf: string | null;
   setHoveredUf: (uf: string | null) => void;
 
+  // rede de similaridade + comunidade (Louvain) por municipio, buscada do
+  // backend sob demanda e cacheada em memoria (mesmo padrao de ufCache)
+  redeCache: Record<string, RedeMunicipio>;
+  redeLoading: string | null;
+  redeError: string | null;
+
   loadBoot: () => Promise<void>;
   ensureUF: (uf: string) => Promise<void>;
+  ensureRede: (ibge6: string) => Promise<void>;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
@@ -44,6 +58,10 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   hoveredUf: null,
   setHoveredUf: (uf) => set({ hoveredUf: uf }),
+
+  redeCache: {},
+  redeLoading: null,
+  redeError: null,
 
   async loadBoot() {
     set({ bootLoading: true, bootError: null });
@@ -79,6 +97,24 @@ export const useAppStore = create<AppState>((set, get) => ({
       set({
         ufError: err instanceof Error ? err.message : String(err),
         ufLoading: null,
+      });
+    }
+  },
+
+  async ensureRede(ibge6) {
+    if (get().redeCache[ibge6] || get().redeLoading === ibge6) return;
+
+    set({ redeLoading: ibge6, redeError: null });
+    try {
+      const rede = await fetchJson<RedeMunicipio>(`${API_BASE_URL}/municipios/${ibge6}/rede`);
+      set((state) => ({
+        redeCache: { ...state.redeCache, [ibge6]: rede },
+        redeLoading: state.redeLoading === ibge6 ? null : state.redeLoading,
+      }));
+    } catch (err) {
+      set({
+        redeError: err instanceof Error ? err.message : String(err),
+        redeLoading: null,
       });
     }
   },

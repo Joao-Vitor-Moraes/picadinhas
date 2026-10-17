@@ -68,3 +68,30 @@ export interface UFData {
   paths: UFMunPaths;
   dados: UFMunicipiosData;
 }
+
+// Grafo de similaridade + deteccao de comunidades (Louvain), servido pelo
+// backend (ver backend/main.py) — expansao de escopo em relacao ao MVP
+// original (ver CLAUDE.md, secao Arquitetura).
+export interface RedeNo {
+  ibge6: string;
+  nome_municipio: string | null;
+  uf: string | null;
+  comunidade: number | null;
+}
+
+export interface RedeVizinho extends RedeNo {
+  distancia: number;
+}
+
+export interface RedeAresta {
+  origem: string;
+  destino: string;
+  distancia: number;
+}
+
+export interface RedeMunicipio {
+  municipio: RedeNo;
+  vizinhos: RedeVizinho[];
+  arestas: RedeAresta[];
+  num_comunidades_total: number;
+}

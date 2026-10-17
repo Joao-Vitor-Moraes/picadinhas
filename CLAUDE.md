@@ -22,8 +22,26 @@ e quais municípios apresentam padrões que merecem atenção?
 ## Arquitetura
 Pipeline Python (pandas + numpy; scikit-learn indisponível nesta máquina, ver
 "Decisões já tomadas") roda localmente → gera JSON em data/processed/ →
-frontend React (Vite) só lê esses JSONs, sem backend/banco → deploy Vercel/Netlify.
-Dado bruto NÃO vai pro git (ver .gitignore).
+frontend React (Vite) lê esses JSONs direto (sem backend) pra tudo que é MVP →
+deploy Vercel/Netlify. Dado bruto NÃO vai pro git (ver .gitignore).
+
+**Atualização (branch `grafo-comunidades`): expansão de escopo explícita**
+— agora existe um backend de verdade (`backend/`, FastAPI, mesmo `.venv` do
+pipeline). Motivo: detecção de comunidades (Louvain, `networkx`) sobre o
+grafo de similaridade do Dia 5 precisa do grafo inteiro pra fazer sentido
+(modularidade é uma métrica global), então não dá pra pré-computar e
+exportar como JSON estático por município como o resto do app — tem que
+rodar em algum processo vivo. A partição de comunidades é computada **uma
+única vez, no startup do servidor** (não por request — o grafo de entrada é
+estático entre deploys, então recomputar não muda o resultado, só gasta
+CPU/latência à toa; ver `backend/main.py` pro raciocínio completo), e fica
+em cache em memória. Endpoint `GET /municipios/{ibge6}/rede` devolve o
+município + vizinhos k-NN (Dia 5) + comunidade de cada um + arestas do
+sub-grafo local (inclui arestas entre os próprios vizinhos, não só
+centro→vizinho). Frontend consome via `VITE_API_BASE_URL` (padrão
+`http://localhost:8000`, configurável — hospedagem do backend ainda não
+decidida, fica pro Dia 7). Resto do app (mapa, ranking, filtros, séries)
+continua 100% estático, sem depender do backend.
 
 ## Fonte de dados
 VacinaBR (iqc.org.br/observatorio/vacinabr) — dump completo em

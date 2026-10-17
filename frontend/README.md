@@ -1,8 +1,14 @@
 # Picadinhas — frontend
 
-Vite + React + TypeScript. Sem backend — o app só lê os JSONs já processados
-pelo pipeline Python (ver `../CLAUDE.md` na raiz do repo pro contexto completo
-do projeto).
+Vite + React + TypeScript. O app principal (mapa, ranking, filtros) só lê os
+JSONs já processados pelo pipeline Python, sem backend (ver `../CLAUDE.md` na
+raiz do repo pro contexto completo do projeto).
+
+Branch `grafo-comunidades`: o painel "Rede de similaridade" (na view de
+município) busca de um backend FastAPI à parte (`../backend/`, ver
+`src/config.ts` e `src/store/useAppStore.ts` → `ensureRede`). Sem o backend
+rodando (`http://localhost:8000` por padrão), o resto do app funciona
+normal — só esse painel mostra erro.
 
 ## Rodando localmente
 

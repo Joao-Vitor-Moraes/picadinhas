@@ -76,7 +76,7 @@ function Pagina() {
       )}
 
       <div className="note-strip">
-        <strong>Picadinhas</strong> — cobertura vacinal nos municípios brasileiros (BCG,
+        <strong>Imuniza Brasil</strong> — cobertura vacinal nos municípios brasileiros (BCG,
         Poliomielite inativada, Pentavalente, Tríplice Viral, Hepatite B), 2014–2026. Dados do{" "}
         <a href="https://iqc.org.br/observatorio/vacinabr" target="_blank" rel="noreferrer">
           VacinaBR (iqc.org.br)

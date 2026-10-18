@@ -72,6 +72,16 @@ a {
   border-bottom: 1px solid var(--border);
   padding-bottom: 14px;
 }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-icon {
+  height: 26px;
+  width: auto;
+  display: block;
+}
 .brand-name {
   font-family: var(--serif);
   font-weight: 700;

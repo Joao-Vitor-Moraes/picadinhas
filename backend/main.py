@@ -1,5 +1,5 @@
 """
-Backend FastAPI do Picadinhas — expansao de escopo explicita em relacao ao
+Backend FastAPI do Imuniza Brasil — expansao de escopo explicita em relacao ao
 MVP original (ver CLAUDE.md), adicionada pra rodar deteccao de comunidades
 (Louvain) sobre o grafo de similaridade do Dia 5
 (data/processed/grafo_similaridade_arestas.csv) e aplicar o modelo de risco
@@ -159,7 +159,7 @@ async def lifespan(app: FastAPI):
     STATE.clear()
 
 
-app = FastAPI(title="Picadinhas — backend de grafo", lifespan=lifespan)
+app = FastAPI(title="Imuniza Brasil — backend de grafo", lifespan=lifespan)
 
 # Origens permitidas via env var (ALLOWED_ORIGINS, separadas por virgula) —
 # em producao (Render) vai apontar pro dominio da Vercel; em dev local, sem

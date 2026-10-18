@@ -1,4 +1,4 @@
-# Picadinhas
+# Imuniza Brasil
 
 Como a vacinação dos municípios brasileiros está evoluindo, e quais municípios
 apresentam padrões que merecem atenção?

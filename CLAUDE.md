@@ -1,4 +1,7 @@
-# Picadinhas — Contexto do Projeto
+# Imuniza Brasil — Contexto do Projeto
+
+*(projeto chamado "Picadinhas" até o rebranding pré-Dia 7; pasta/repo local
+ainda se chama `picadinhas`, não renomeada — só a marca da aplicação mudou.)*
 
 ## O que é
 App interativo sobre cobertura vacinal nos municípios brasileiros — Data Analytics +
@@ -770,6 +773,32 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     startup).
   - Verificado que backend e site estático batem exatamente após o reinício
     (mesma distribuição 1.051/1.682/2.837 nos dois).
+
+- **Rebranding pré-Dia 7: "Picadinhas" → "Imuniza Brasil".** Decisão do
+  usuário, antes do deploy. Trocado em tudo que é visível pro usuário final
+  e em referências internas de documentação/serviço:
+  - Frontend: `<title>`, favicon (agora `favicon.png`, gerado a partir da
+    logo nova — `frontend/public/favicon.svg` antigo não foi apagado, só
+    desreferenciado), barra superior (ícone da logo nova +
+    `frontend/public/images/logo-icon.png`, recortado/com fundo removido a
+    partir da arte fornecida pelo usuário + texto "Imuniza Brasil" em HTML,
+    não a imagem inteira — decisão: manter o nome como texto vivo no
+    `.brand-name` existente, em vez de assar o wordmark dentro do PNG,
+    porque texto HTML fica nítido em qualquer resolução/zoom e herda a cor
+    de tinta do app automaticamente; só o ícone (escudo+seringa+mapa) vem
+    como imagem), rodapé explicativo (`App.tsx`).
+  - Interno: `README.md`, `frontend/README.md`, título da API no
+    `backend/main.py` (`FastAPI(title=...)`), nome do serviço no
+    `render.yaml` (`picadinhas-backend` → `imuniza-brasil-backend`, feito
+    antes do primeiro deploy do Dia 7 pra não precisar renomear serviço já
+    no ar depois).
+  - **Não alterado de propósito:** nome da pasta/repo local (`picadinhas`),
+    caminhos `RAIZ = r"C:\Users\...\Picadinhas"` nos scripts
+    `pni_montar_cobertura.py`/`atualizar_features_risco_2025.py` (é o
+    caminho real da pasta no Windows do usuário, não um label de marca —
+    mudar quebraria os scripts sem a pasta local também ser renomeada), e
+    `design-reference/template2.html` (protótipo histórico arquivado, não
+    é servido pela app).
 
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |

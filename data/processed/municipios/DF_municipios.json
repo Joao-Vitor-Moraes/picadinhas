@@ -5,13 +5,17 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.8,
       "tendencia": 0.2,
-      "risco_probabilidade": 0.5264,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.5165,
+      "risco_faixa": "baixo"
     }
   },
   "series": {
     "530010": {
       "2014": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 94.3,
           "meta": 95.0,
@@ -44,8 +48,12 @@
         }
       },
       "2015": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
-          "cob": 71.4,
+          "cob": 71.5,
           "meta": 95.0,
           "ok": false
         },
@@ -76,6 +84,10 @@
         }
       },
       "2016": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 100.0,
           "meta": 95.0,
@@ -108,6 +120,10 @@
         }
       },
       "2017": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 89.6,
           "meta": 95.0,
@@ -140,6 +156,10 @@
         }
       },
       "2018": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 86.4,
           "meta": 95.0,
@@ -172,6 +192,10 @@
         }
       },
       "2019": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 86.5,
           "meta": 95.0,
@@ -204,6 +228,10 @@
         }
       },
       "2020": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 92.1,
           "meta": 95.0,
@@ -236,6 +264,10 @@
         }
       },
       "2021": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 88.3,
           "meta": 95.0,
@@ -268,6 +300,10 @@
         }
       },
       "2022": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 90.3,
           "meta": 95.0,
@@ -300,6 +336,10 @@
         }
       },
       "2023": {
+        "fonte": "vacinabr",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
         "todas": {
           "cob": 89.2,
           "meta": 95.0,
@@ -327,6 +367,114 @@
         },
         "triplice": {
           "cob": 87.9,
+          "meta": 95.0,
+          "ok": false
+        }
+      },
+      "2024": {
+        "fonte": "pni_reconstruido",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
+        "todas": {
+          "cob": 90.4,
+          "meta": 95.0,
+          "ok": false
+        },
+        "bcg": {
+          "cob": 100.0,
+          "meta": 90.0,
+          "ok": true
+        },
+        "hepb": {
+          "cob": 100.0,
+          "meta": 95.0,
+          "ok": true
+        },
+        "penta": {
+          "cob": 88.4,
+          "meta": 95.0,
+          "ok": false
+        },
+        "polio": {
+          "cob": 79.7,
+          "meta": 95.0,
+          "ok": false
+        },
+        "triplice": {
+          "cob": 84.0,
+          "meta": 95.0,
+          "ok": false
+        }
+      },
+      "2025": {
+        "fonte": "pni_reconstruido",
+        "ano_parcial": false,
+        "meses_dado_numerador": 12,
+        "meses_dado_denominador": 12,
+        "todas": {
+          "cob": 87.6,
+          "meta": 95.0,
+          "ok": false
+        },
+        "bcg": {
+          "cob": 99.2,
+          "meta": 90.0,
+          "ok": true
+        },
+        "hepb": {
+          "cob": 100.0,
+          "meta": 95.0,
+          "ok": true
+        },
+        "penta": {
+          "cob": 81.3,
+          "meta": 95.0,
+          "ok": false
+        },
+        "polio": {
+          "cob": 72.4,
+          "meta": 95.0,
+          "ok": false
+        },
+        "triplice": {
+          "cob": 85.1,
+          "meta": 95.0,
+          "ok": false
+        }
+      },
+      "2026": {
+        "fonte": "pni_reconstruido",
+        "ano_parcial": true,
+        "meses_dado_numerador": 8,
+        "meses_dado_denominador": 8,
+        "todas": {
+          "cob": 89.4,
+          "meta": 95.0,
+          "ok": false
+        },
+        "bcg": {
+          "cob": 100.0,
+          "meta": 90.0,
+          "ok": true
+        },
+        "hepb": {
+          "cob": 100.0,
+          "meta": 95.0,
+          "ok": true
+        },
+        "penta": {
+          "cob": 98.6,
+          "meta": 95.0,
+          "ok": true
+        },
+        "polio": {
+          "cob": 87.3,
+          "meta": 95.0,
+          "ok": false
+        },
+        "triplice": {
+          "cob": 61.0,
           "meta": 95.0,
           "ok": false
         }

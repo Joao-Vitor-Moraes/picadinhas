@@ -1,7 +1,8 @@
 import { useAppStore } from "../store/useAppStore";
 import { useFiltros } from "../hooks/useFiltros";
 import { VACINA_LABELS } from "../types/data";
-import { fmtPct } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
+import { AVISO_2026_POR_VACINA, ehDadoEstimado, fmtPct } from "../utils/format";
 
 export function Chart() {
   const serieNacional = useAppStore((s) => s.serieNacional);
@@ -10,7 +11,12 @@ export function Chart() {
   if (!serieNacional) return null;
 
   const years = serieNacional.years;
-  const series = years.map((y) => serieNacional.brasil[String(y)][vacina]);
+  const registros = years.map((y) => serieNacional.brasil[String(y)]);
+  const series = registros.map((r) => r[vacina] ?? 0);
+  const temAnoEstimado = registros.some((r) => ehDadoEstimado(r.fonte));
+  const ultimoRegistro = registros[registros.length - 1];
+  const avisoVacinaUltimoAno =
+    vacina !== "todas" && ultimoRegistro.ano_parcial ? AVISO_2026_POR_VACINA[vacina] : undefined;
   const min = Math.min(...series);
   const max = Math.max(...series);
   const padLo = Math.max(0, Math.floor((min - 4) / 5) * 5);
@@ -36,6 +42,9 @@ export function Chart() {
     <div className="chart-wrap">
       <div className="chart-title">
         Evolução nacional — {VACINA_LABELS[vacina].toLowerCase()}
+        {temAnoEstimado && (
+          <SeloFonte parcial={ultimoRegistro.ano_parcial} avisoVacina={avisoVacinaUltimoAno} />
+        )}
       </div>
       <svg viewBox="0 0 230 120" width="100%" height="120">
         {[padLo, padHi].map((gv) => (

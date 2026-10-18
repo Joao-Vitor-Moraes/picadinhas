@@ -18,16 +18,32 @@ O risco de queda atipica segue a mesma logica: o modelo (coeficientes de
 regressao logistica) foi TREINADO offline no notebook04 — o backend nunca
 treina nada, so carrega os coeficientes e aplica predict() (um produto
 escalar + sigmoide, barato) sobre as features de cada municipio, que
-tambem sao estaticas entre deploys (vem de clusters_municipios_mvp.csv).
-Por isso o risco de todos os 5.570 municipios e calculado uma unica vez no
-startup, junto com as comunidades, em vez de recalculado por request.
+tambem sao estaticas entre deploys. Por isso o risco de todos os 5.570
+municipios e calculado uma unica vez no startup, junto com as comunidades,
+em vez de recalculado por request.
+
+Atualizacao (ano-alvo do risco, ver CLAUDE.md): o modelo continua o mesmo
+(nunca foi retreinado), mas a partir de agora as features de entrada vem de
+`features_causais_risco_2025.csv` (nao mais `clusters_municipios_mvp.csv`) —
+esse arquivo recalcula as mesmas features causais incluindo 2024/2025 reais
+(reconstruidos do PNI) e aplica o modelo congelado sobre T=2025, deslocando
+a previsao de "risco para 2024" (ja virou dado real, obsoleto como previsao)
+pra "risco de queda em 2026". Ver notebooks/atualizar_features_risco_2025.py.
+
+Atualizacao (corte por percentil, ver CLAUDE.md): a faixa Alto/Medio/Baixo
+tambem NAO e mais calculada aqui — `calcular_risco` so LE a
+`risco_probabilidade`/`risco_faixa` ja prontas em `features_causais_risco_2025.csv`.
+O corte virou por percentil relativo a populacao inteira (mesmo principio do
+`percentil_isolamento` do Dia 5), entao so faz sentido calculado uma vez,
+sobre todos os municipios juntos (`np.percentile`) — reimplementar isso aqui
+municipio-por-municipio duplicaria a logica em dois lugares e arriscaria
+divergencia entre o backend e o site estatico.
 
 Rodar local: `uvicorn backend.main:app --reload` a partir da raiz do repo
 (usa o mesmo .venv do pipeline Python).
 """
 
 import json
-import math
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -39,6 +55,7 @@ from fastapi.middleware.cors import CORSMiddleware
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 ARESTAS_CSV = DATA_DIR / "grafo_similaridade_arestas.csv"
 CLUSTERS_CSV = DATA_DIR / "clusters_municipios_mvp.csv"
+FEATURES_RISCO_CSV = DATA_DIR / "features_causais_risco_2025.csv"
 MODELO_RISCO_JSON = DATA_DIR / "modelo_risco.json"
 
 # Preenchido no startup (ver lifespan abaixo) — cache em memoria da
@@ -75,44 +92,21 @@ def detectar_comunidades(grafo: nx.Graph) -> dict[str, int]:
     }
 
 
-def calcular_risco(clusters: pd.DataFrame, modelo: dict) -> dict[str, dict]:
-    # Reconstroi exatamente as mesmas features/dummies/padronizacao do
-    # treino (notebook04, Etapa F) — "causal em T=2023" = historico inteiro
-    # 2014-2023, que e o que clusters_municipios_mvp.csv ja tem.
-    media = modelo["scaler_mean"]
-    desvio = modelo["scaler_std"]
-    coef = modelo["coeficientes"]
-    cortes = modelo["cortes_risco"]
-
-    colunas_continuas = {
-        "media_causal": "media_cobertura",
-        "variabilidade_causal": "variabilidade_cobertura",
-        "tendencia_causal": "tendencia_cobertura",
-        "isolamento_causal": "isolamento_similaridade",
+def calcular_risco(features_risco: pd.DataFrame) -> dict[str, dict]:
+    # Le probabilidade/faixa JA calculados por
+    # notebooks/atualizar_features_risco_2025.py, em vez de recalcular aqui.
+    # Motivo: o corte Alto/Medio/Baixo e por PERCENTIL relativo a populacao
+    # inteira (mesmo principio do percentil_isolamento do Dia 5 — ver
+    # CLAUDE.md), entao so faz sentido calculado uma vez sobre TODOS os
+    # municipios de uma vez (np.percentile da distribuicao inteira).
+    # Reimplementar esse corte aqui, municipio por municipio, duplicaria a
+    # logica em dois lugares e arriscaria os dois arquivos discordarem (por
+    # exemplo, se este arquivo ainda usasse um corte absoluto antigo depois
+    # da calibracao por percentil ser atualizada so do lado do notebook).
+    return {
+        linha.ibge6: {"probabilidade": float(linha.risco_probabilidade), "faixa": linha.risco_faixa}
+        for linha in features_risco.itertuples()
     }
-
-    risco_por_no: dict[str, dict] = {}
-    for linha in clusters.itertuples():
-        z = coef["intercepto"]
-        for i, (nome_causal, coluna) in enumerate(colunas_continuas.items()):
-            valor_padronizado = (getattr(linha, coluna) - media[i]) / desvio[i]
-            z += coef[nome_causal] * valor_padronizado
-
-        nome_cluster = linha.nome_cluster
-        z += coef["cluster_baixa_recuperacao"] * (1.0 if "recuperacao" in nome_cluster else 0.0)
-        z += coef["cluster_queda_instavel"] * (1.0 if "instavel" in nome_cluster else 0.0)
-
-        probabilidade = 1.0 / (1.0 + math.exp(-z))
-        if probabilidade >= cortes["alto"]:
-            faixa = "alto"
-        elif probabilidade >= cortes["medio"]:
-            faixa = "medio"
-        else:
-            faixa = "baixo"
-
-        risco_por_no[linha.ibge6] = {"probabilidade": round(probabilidade, 4), "faixa": faixa}
-
-    return risco_por_no
 
 
 @asynccontextmanager
@@ -129,9 +123,10 @@ async def lifespan(app: FastAPI):
     grafo = montar_grafo(arestas)
     comunidade_por_no = detectar_comunidades(grafo)
 
+    features_risco = pd.read_csv(FEATURES_RISCO_CSV, dtype={"ibge6": str})
     with open(MODELO_RISCO_JSON, encoding="utf-8") as f:
         modelo_risco = json.load(f)
-    risco_por_no = calcular_risco(clusters, modelo_risco)
+    risco_por_no = calcular_risco(features_risco)
 
     # vizinhos k-NN de cada municipio, na direcao original do Dia 5
     # (ibge6_origem -> seus 5 mais proximos), com a distancia bruta pra

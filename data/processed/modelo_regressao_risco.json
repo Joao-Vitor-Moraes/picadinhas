@@ -1,0 +1,92 @@
+{
+  "metadados": {
+    "descricao": "Regressao linear (numpy, lstsq) prevendo o DESVIO da cobertura geral em relacao a tendencia nacional do ano seguinte; previsao absoluta reconstruida somando a extrapolacao linear da tendencia nacional.",
+    "tipo_modelo": "regressao_numerica_destrend",
+    "anos_treino_final": [
+      2016,
+      2017,
+      2018,
+      2019,
+      2020,
+      2021,
+      2022
+    ],
+    "n_treino_final": 38969,
+    "numero_condicao_treino_final": 7.841407268769218,
+    "metodo_extrapolacao_nacional": "nacional_T + (nacional_T - nacional_T-1)",
+    "metricas_SEM_destrend_teste_2022_2023": {
+      "mae": 13.89962340670586,
+      "mediana": 12.752105363872658,
+      "correlacao": 0.387138489217815,
+      "r2": -0.3510865179863818
+    },
+    "metricas_COM_destrend_teste_2022_2023": {
+      "mae": 13.831898616959668,
+      "mediana": 12.060342259982335,
+      "correlacao": 0.4321946278221029,
+      "r2": -0.4398305708903605
+    },
+    "validacao_real": {
+      "2024_a_partir_de_2023": {
+        "mae": 7.447755872471605,
+        "mediana": 5.801770767955816,
+        "correlacao": 0.3262384687438358,
+        "r2": -0.2618374443062461,
+        "n_municipios": 5570
+      },
+      "2025_a_partir_de_2024": {
+        "mae": 9.711759377166217,
+        "mediana": 8.036722777379765,
+        "correlacao": 0.4024949164945444,
+        "r2": -0.7194827294597832,
+        "n_municipios": 5570
+      }
+    },
+    "aviso": "Validado contra dado reconstruido do PNI (nao VacinaBR oficial), que tem incerteza propria de ~1-3% mesmo apos dedup. Parte do erro de previsao pode ser ruido do dado real, nao erro do modelo -- ver CLAUDE.md. A extrapolacao da tendencia nacional e uma estimativa ingenua (linear simples), nao um forecast nacional robusto -- erra mais perto de pontos de inflexao."
+  },
+  "features_continuas": [
+    "media_causal",
+    "variabilidade_causal",
+    "tendencia_causal",
+    "isolamento_causal"
+  ],
+  "features_dummies": [
+    "cluster_baixa_recuperacao",
+    "cluster_queda_instavel"
+  ],
+  "scaler_mean": [
+    80.82783410831944,
+    10.502904694331386,
+    -1.4746350457211557,
+    0.15269436666957806
+  ],
+  "scaler_std": [
+    11.91104752251973,
+    6.59637553900572,
+    4.934547684008486,
+    0.12277606088496759
+  ],
+  "coeficientes_desvio": {
+    "intercepto": 1.0385014197501163,
+    "media_causal": 7.509382983327378,
+    "variabilidade_causal": 1.2952126546739495,
+    "tendencia_causal": 2.432813075816475,
+    "isolamento_causal": 0.3675115791721455,
+    "cluster_baixa_recuperacao": -0.16181468523018339,
+    "cluster_queda_instavel": -4.7939896156861
+  },
+  "cobertura_nacional_por_ano": {
+    "2014": 84.49007161448655,
+    "2015": 83.26437596858966,
+    "2016": 79.27845190434705,
+    "2017": 81.75083598093057,
+    "2018": 81.09266824993716,
+    "2019": 77.78638827173252,
+    "2020": 73.17547029251378,
+    "2021": 69.91367102002933,
+    "2022": 80.50980210919974,
+    "2023": 88.17836258348295,
+    "2024": 92.09895516087396,
+    "2025": 88.79581862157178
+  }
+}

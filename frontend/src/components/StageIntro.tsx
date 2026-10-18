@@ -2,6 +2,7 @@ import { useAppStore } from "../store/useAppStore";
 import { useRota } from "../hooks/useRota";
 import { useFiltros } from "../hooks/useFiltros";
 import { VACINA_LABELS, type VacinaKey } from "../types/data";
+import { ehDadoEstimado } from "../utils/format";
 
 // So renderizado em estado/municipio (view !== "national") — na visao
 // nacional o filtro vira NationalToolbar, uma barra horizontal, pra nao
@@ -42,11 +43,20 @@ export function StageIntro() {
         <div className="field">
           <label htmlFor="sel-ano">Ano</label>
           <select id="sel-ano" value={ano} onChange={(e) => setAno(e.target.value)}>
-            {anos.map((y) => (
-              <option key={y} value={String(y)}>
-                {y}
-              </option>
-            ))}
+            {anos.map((y) => {
+              const registro = serieNacional?.brasil[String(y)];
+              const sufixo = registro?.ano_parcial
+                ? " (parcial)"
+                : ehDadoEstimado(registro?.fonte)
+                  ? " (estimado)"
+                  : "";
+              return (
+                <option key={y} value={String(y)}>
+                  {y}
+                  {sufixo}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>

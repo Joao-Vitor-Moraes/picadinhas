@@ -50,6 +50,7 @@ export function Callouts({ children }: { children: ReactNode }) {
   const resumoEstados = useAppStore((s) => s.resumoEstados);
   const brazilPaths = useAppStore((s) => s.brazilPaths);
   const hoveredUf = useAppStore((s) => s.hoveredUf);
+  const riscoResumo = useAppStore((s) => s.riscoResumo);
   const stageRef = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<Geometria | null>(null);
 
@@ -134,7 +135,7 @@ export function Callouts({ children }: { children: ReactNode }) {
                 <strong>{callout.quedasBruscas.toLocaleString("pt-BR")} casos</strong>
               </div>
               <div className="callout-stat">
-                <span>Risco alto pro próximo ano</span>
+                <span>Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}</span>
                 <strong className={callout.riscoAlto > 0 ? "bad" : undefined}>
                   {callout.riscoAlto.toLocaleString("pt-BR")} municípios
                 </strong>

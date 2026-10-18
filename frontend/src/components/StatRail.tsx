@@ -4,12 +4,14 @@ import { useFiltros } from "../hooks/useFiltros";
 import { CLUSTER_LABELS, VACINA_LABELS, type VacinaKey } from "../types/data";
 import { Chart } from "./Chart";
 import { RedeMunicipio } from "./RedeMunicipio";
-import { fmtPct, riscoCor, riscoTexto } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
+import { AVISO_2026_POR_VACINA, ehDadoEstimado, fmtPct, riscoCor, riscoTexto } from "../utils/format";
 
 export function StatRail() {
   const { uf, municipioIbge6, view } = useRota();
   const resumoEstados = useAppStore((s) => s.resumoEstados);
   const riscoResumo = useAppStore((s) => s.riscoResumo);
+  const serieNacional = useAppStore((s) => s.serieNacional);
   const ufCache = useAppStore((s) => s.ufCache);
   const { vacina, ano } = useFiltros();
 
@@ -21,6 +23,7 @@ export function StatRail() {
         municipioIbge6={municipioIbge6}
         resumoEstados={resumoEstados}
         riscoResumo={riscoResumo}
+        serieNacional={serieNacional}
         ufCache={ufCache}
         vacina={vacina}
         ano={ano}
@@ -37,6 +40,7 @@ function SelectionPanel({
   municipioIbge6,
   resumoEstados,
   riscoResumo,
+  serieNacional,
   ufCache,
   vacina,
   ano,
@@ -46,11 +50,18 @@ function SelectionPanel({
   municipioIbge6: string | null;
   resumoEstados: ReturnType<typeof useAppStore.getState>["resumoEstados"];
   riscoResumo: ReturnType<typeof useAppStore.getState>["riscoResumo"];
+  serieNacional: ReturnType<typeof useAppStore.getState>["serieNacional"];
   ufCache: ReturnType<typeof useAppStore.getState>["ufCache"];
   vacina: VacinaKey;
   ano: string;
 }) {
   if (view === "national") {
+    const anos = serieNacional?.years ?? [2014, 2023];
+    const anoInicial = anos[0];
+    const anoFinal = anos[anos.length - 1];
+    const ultimoRegistroNacional = serieNacional?.brasil[String(anoFinal)];
+    const temAnoEstimadoNacional = ehDadoEstimado(ultimoRegistroNacional?.fonte);
+
     return (
       <div>
         <div className="stat-block-label">Municípios analisados</div>
@@ -58,8 +69,9 @@ function SelectionPanel({
         <div className="stat-block" style={{ marginTop: 20 }}>
           <div className="stat-block-label">Período coberto</div>
           <div className="stat-num num" style={{ fontSize: 24 }}>
-            2014–23
+            {anoInicial}–{String(anoFinal).slice(2)}
           </div>
+          {temAnoEstimadoNacional && <SeloFonte parcial={ultimoRegistroNacional?.ano_parcial} />}
         </div>
         <div className="stat-block" style={{ marginTop: 20 }}>
           <div className="stat-block-label">Quedas bruscas registradas</div>
@@ -73,14 +85,13 @@ function SelectionPanel({
         </div>
         {riscoResumo && (
           <div className="stat-block" style={{ marginTop: 20 }}>
-            <div className="stat-block-label">Risco alto pro próximo ano</div>
+            <div className="stat-block-label">Risco alto para {riscoResumo.ano_alvo_previsao}</div>
             <div className="stat-num num" style={{ color: "var(--crit)", fontSize: 24 }}>
               {riscoResumo.n_alto.toLocaleString("pt-BR")}
             </div>
             <div className="stat-cap">
               Municípios que um modelo preditivo aponta como mais propensos a uma queda brusca de
-              cobertura, com base no histórico de cada um até 2023 — o último ano disponível, já
-              que a fonte oficial (Ministério da Saúde) está sem divulgar dados mais recentes.
+              cobertura, com base no histórico de cada um até o último ano completo disponível.
             </div>
           </div>
         )}
@@ -116,7 +127,7 @@ function SelectionPanel({
           </div>
         </div>
         <div style={{ marginTop: 16 }}>
-          <div className="stat-block-label">Risco alto pro próximo ano</div>
+          <div className="stat-block-label">Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}</div>
           <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--crit)" }}>
             {estado.n_municipios_risco_alto} de {estado.n_municipios} municípios
           </div>
@@ -135,7 +146,10 @@ function SelectionPanel({
   if (!meta) {
     return <div className="empty-hint">Município não encontrado. Clique num município no mapa.</div>;
   }
-  const rec = ufData.dados.series[municipioIbge6]?.[ano]?.[vacina] ?? null;
+  const registroAno = ufData.dados.series[municipioIbge6]?.[ano] ?? null;
+  const rec = registroAno?.[vacina] ?? null;
+  const estimado = ehDadoEstimado(registroAno?.fonte);
+  const avisoVacina = vacina !== "todas" && registroAno?.ano_parcial ? AVISO_2026_POR_VACINA[vacina] : undefined;
 
   return (
     <div>
@@ -147,7 +161,10 @@ function SelectionPanel({
         {uf} · {ano} · {VACINA_LABELS[vacina]}
       </div>
       <div className="stat-block">
-        <div className="stat-block-label">Cobertura</div>
+        <div className="stat-block-label">
+          Cobertura
+          {estimado && <SeloFonte parcial={registroAno?.ano_parcial} avisoVacina={avisoVacina} />}
+        </div>
         <div className="stat-num num" style={{ fontSize: 26 }}>
           {fmtPct(rec?.cob ?? null)}
         </div>
@@ -172,7 +189,9 @@ function SelectionPanel({
         </div>
       </div>
       <div style={{ marginTop: 16 }}>
-        <div className="stat-block-label">Risco de queda no próximo ano</div>
+        <div className="stat-block-label">
+          Risco de queda em {riscoResumo?.ano_alvo_previsao ?? "breve"}
+        </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           <span className="display num" style={{ fontSize: 16, fontWeight: 700, color: riscoCor(meta.risco_faixa) }}>
             {riscoTexto(meta.risco_faixa)}
@@ -182,9 +201,8 @@ function SelectionPanel({
           </span>
         </div>
         <div className="stat-cap" style={{ marginTop: 4 }}>
-          Estimativa de um modelo preditivo com base no histórico do município até 2023 — uma
-          ferramenta de atenção, não uma certeza. O Ministério da Saúde ainda não divulgou dados
-          mais recentes que esse.
+          Estimativa de um modelo preditivo com base no histórico do município até o último ano
+          completo disponível — uma ferramenta de atenção, não uma certeza.
         </div>
       </div>
     </div>

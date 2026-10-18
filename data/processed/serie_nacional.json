@@ -9,11 +9,16 @@
     2020,
     2021,
     2022,
-    2023
+    2023,
+    2024,
+    2025,
+    2026
   ],
   "brasil": {
     "2014": {
       "todas": 84.5,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 77.9,
       "hepb": 63.0,
       "penta": 91.1,
@@ -22,6 +27,8 @@
     },
     "2015": {
       "todas": 83.3,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 78.8,
       "hepb": 62.8,
       "penta": 90.8,
@@ -30,6 +37,8 @@
     },
     "2016": {
       "todas": 79.3,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 76.3,
       "hepb": 59.2,
       "penta": 88.5,
@@ -38,6 +47,8 @@
     },
     "2017": {
       "todas": 81.7,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 77.5,
       "hepb": 61.0,
       "penta": 87.8,
@@ -46,6 +57,8 @@
     },
     "2018": {
       "todas": 81.0,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 75.0,
       "hepb": 59.6,
       "penta": 88.6,
@@ -54,6 +67,8 @@
     },
     "2019": {
       "todas": 77.6,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 70.9,
       "hepb": 55.2,
       "penta": 79.4,
@@ -62,6 +77,8 @@
     },
     "2020": {
       "todas": 72.9,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 60.3,
       "hepb": 43.6,
       "penta": 85.2,
@@ -70,6 +87,8 @@
     },
     "2021": {
       "todas": 69.7,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 57.3,
       "hepb": 42.6,
       "penta": 81.6,
@@ -78,6 +97,8 @@
     },
     "2022": {
       "todas": 80.5,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 75.1,
       "hepb": 60.0,
       "penta": 88.5,
@@ -86,11 +107,43 @@
     },
     "2023": {
       "todas": 88.2,
+      "fonte": "vacinabr",
+      "ano_parcial": false,
       "bcg": 87.2,
       "hepb": 84.1,
       "penta": 88.9,
       "polio": 89.4,
       "triplice": 91.4
+    },
+    "2024": {
+      "todas": 92.1,
+      "fonte": "pni_reconstruido",
+      "ano_parcial": false,
+      "bcg": 93.6,
+      "hepb": 92.6,
+      "penta": 92.8,
+      "polio": 90.7,
+      "triplice": 90.8
+    },
+    "2025": {
+      "todas": 88.8,
+      "fonte": "pni_reconstruido",
+      "ano_parcial": false,
+      "bcg": 91.1,
+      "hepb": 91.7,
+      "penta": 87.6,
+      "polio": 83.9,
+      "triplice": 89.6
+    },
+    "2026": {
+      "todas": 86.0,
+      "fonte": "pni_reconstruido",
+      "ano_parcial": true,
+      "bcg": 91.9,
+      "hepb": 94.2,
+      "penta": 91.5,
+      "polio": 88.2,
+      "triplice": 64.4
     }
   }
 }

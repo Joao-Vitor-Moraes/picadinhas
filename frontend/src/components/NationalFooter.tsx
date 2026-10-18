@@ -1,6 +1,7 @@
 import { useAppStore } from "../store/useAppStore";
 import { VACINA_LABELS, type VacinaKey } from "../types/data";
-import { colorFor, fmtPct } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
+import { colorFor, ehDadoEstimado } from "../utils/format";
 
 // Rodape editorial, so na visao nacional (ver CLAUDE.md, Dia 6 Parte 3 /
 // redesign): a referencia (design-reference/redesign-ref.png) usa uma
@@ -20,8 +21,15 @@ export function NationalFooter() {
   const serieNacional = useAppStore((s) => s.serieNacional);
   if (!serieNacional) return null;
 
-  const ultimoAno = serieNacional.years[serieNacional.years.length - 1];
+  // Usa o ultimo ano CHEIO (nao o 2026 parcial) -- esses 5 medidores mostram
+  // cada vacina individualmente, e Triplice/Penta/Polio saem estruturalmente
+  // distorcidas num ano de 8 meses (ver CLAUDE.md) -- nao da pra simplesmente
+  // adicionar uma ressalva por medidor aqui, entao o rodape usa o ano mais
+  // recente em que a leitura e direta.
+  const anosCheios = serieNacional.years.filter((y) => !serieNacional.brasil[String(y)].ano_parcial);
+  const ultimoAno = anosCheios[anosCheios.length - 1];
   const valores = serieNacional.brasil[String(ultimoAno)];
+  const estimado = ehDadoEstimado(valores.fonte);
 
   return (
     <div className="national-footer">
@@ -41,7 +49,7 @@ export function NationalFooter() {
 
       <div className="footer-meters">
         {VACINAS_METER.map((v) => (
-          <Meter key={v} label={VACINA_LABELS[v]} value={valores[v]} />
+          <Meter key={v} label={VACINA_LABELS[v]} value={valores[v] ?? 0} />
         ))}
       </div>
 
@@ -49,6 +57,7 @@ export function NationalFooter() {
         Dados do VacinaBR
         <br />
         Atualizado em {ultimoAno}
+        {estimado && <SeloFonte />}
       </div>
     </div>
   );

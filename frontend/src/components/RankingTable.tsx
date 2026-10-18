@@ -3,13 +3,15 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import { useRota } from "../hooks/useRota";
 import { useFiltros } from "../hooks/useFiltros";
-import { fmtPct, riscoCor, riscoTexto, statusText, statusWord } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
+import { AVISO_2026_POR_VACINA, ehDadoEstimado, fmtPct, riscoCor, riscoTexto, statusText, statusWord } from "../utils/format";
 import type { RiscoFaixa } from "../utils/format";
 
 export function RankingTable() {
   const { uf, municipioIbge6, view } = useRota();
   const resumoEstados = useAppStore((s) => s.resumoEstados);
   const ufCache = useAppStore((s) => s.ufCache);
+  const serieNacional = useAppStore((s) => s.serieNacional);
   const { vacina, ano } = useFiltros();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -17,6 +19,10 @@ export function RankingTable() {
   const [query, setQuery] = useState("");
 
   const isNational = view === "national";
+  const registroAno = serieNacional?.brasil[ano];
+  const estimadoNaTabela = !isNational && ehDadoEstimado(registroAno?.fonte);
+  const avisoVacinaTabela =
+    !isNational && vacina !== "todas" && registroAno?.ano_parcial ? AVISO_2026_POR_VACINA[vacina] : undefined;
 
   const rows = useMemo(() => {
     if (isNational) {
@@ -71,6 +77,9 @@ export function RankingTable() {
           <h2>{isNational ? "Todos os estados" : "Todos os municípios"}</h2>
           <p>
             {isNational ? "Cobertura média 2014–2023" : `Cobertura em ${ano}`} · clique numa linha pra ver no mapa
+            {estimadoNaTabela && (
+              <SeloFonte parcial={registroAno?.ano_parcial} avisoVacina={avisoVacinaTabela} />
+            )}
           </p>
         </div>
         <div className="search-box">
@@ -101,7 +110,11 @@ export function RankingTable() {
             {isNational && <th className="num-col">Municípios</th>}
             <th className="num-col">Cobertura</th>
             <th>Situação</th>
-            {!isNational && <th title="Risco de queda brusca no próximo ano, estimado com base no histórico até 2023">Risco</th>}
+            {!isNational && (
+              <th title="Risco de queda brusca estimado com base no histórico de cada município até o último ano completo disponível">
+                Risco
+              </th>
+            )}
           </tr>
         </thead>
         <tbody>

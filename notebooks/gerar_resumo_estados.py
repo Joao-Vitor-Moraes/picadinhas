@@ -10,40 +10,31 @@ data/processed/destaques_completo.csv (quedas atipicas, Dia 5) por uf.
 Alimenta o callout editorial "Em destaque" do redesign (estado com maior
 concentracao de destaques), sem repetir a logica de deteccao em si.
 
-Atualizacao (branch grafo-comunidades): n_municipios_risco_alto por estado,
-aplicando o modelo de risco (notebook04_risco.ipynb) sobre os municipios do
-proprio estado. Mesmo motivo do n_destaques acima -- expor um agregado
-estadual sem repetir a logica de calculo (ver gerar_risco_municipios.py,
-que faz o mesmo calculo pros municipios individuais).
+Atualizacao (branch grafo-comunidades): n_municipios_risco_alto por estado.
+
+Atualizacao (ano-alvo do risco): a faixa de risco NAO vem mais de recalcular
+aqui -- vem pronta de data/processed/features_causais_risco_2025.csv (ver
+atualizar_features_risco_2025.py), que aplica o modelo ja treinado
+(congelado) sobre features causais recalculadas com 2024/2025 reais. Ou
+seja, "risco alto" aqui significa "risco de queda em 2026", nao mais 2024.
+`cobertura_media`/`tendencia_media`/`cluster_predominante` CONTINUAM vindo
+de clusters_municipios_mvp.csv (historico 2014-2023, clustering do Dia 4,
+nao redefinido) -- so o numero de risco foi atualizado.
 """
 import json
 
-import numpy as np
 import pandas as pd
 
 df = pd.read_csv("data/processed/clusters_municipios_mvp.csv", dtype={"ibge6": str})
+risco = pd.read_csv("data/processed/features_causais_risco_2025.csv", dtype={"ibge6": str})
 destaques = pd.read_csv("data/processed/destaques_completo.csv")
 n_destaques_por_uf = destaques.groupby("uf").size()
 
 with open("data/processed/brazil-states-paths.json", encoding="utf-8") as f:
     nomes_estados = {uf: v["name"] for uf, v in json.load(f)["states"].items()}
 
-with open("data/processed/modelo_risco.json", encoding="utf-8") as f:
-    modelo_risco = json.load(f)
-
-media = np.array(modelo_risco["scaler_mean"])
-desvio = np.array(modelo_risco["scaler_std"])
-coef = modelo_risco["coeficientes"]
-
-cont = df[["media_cobertura", "variabilidade_cobertura", "tendencia_cobertura", "isolamento_similaridade"]].values
-cont_padr = (cont - media) / desvio
-z = coef["intercepto"]
-for i, nome in enumerate(modelo_risco["features_continuas"]):
-    z += coef[nome] * cont_padr[:, i]
-z += coef["cluster_baixa_recuperacao"] * df["nome_cluster"].str.contains("recuperacao").astype(float)
-z += coef["cluster_queda_instavel"] * df["nome_cluster"].str.contains("instavel").astype(float)
-probabilidade = 1 / (1 + np.exp(-z))
-df["risco_alto"] = probabilidade >= modelo_risco["cortes_risco"]["alto"]
+df = df.merge(risco[["ibge6", "risco_faixa"]], on="ibge6", how="left")
+df["risco_alto"] = df["risco_faixa"] == "alto"
 
 resumo = {}
 for uf, grupo in df.groupby("uf"):

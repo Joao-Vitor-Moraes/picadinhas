@@ -50,6 +50,7 @@ export function RedeMunicipio() {
   const redeLoading = useAppStore((s) => s.redeLoading);
   const redeError = useAppStore((s) => s.redeError);
   const ensureRede = useAppStore((s) => s.ensureRede);
+  const riscoResumo = useAppStore((s) => s.riscoResumo);
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   // Modo "explorar": deixa clicar num vizinho pra recentralizar o grafo
@@ -191,7 +192,8 @@ export function RedeMunicipio() {
             Os 5 municípios do Brasil cuja cobertura vacinal evoluiu de forma mais
             parecida com a deste ao longo dos anos. A cor mostra o grupo de
             comportamento; o tamanho e o anel mostram o risco previsto de queda
-            brusca no próximo ano (estimativa com base no histórico até 2023).
+            brusca em {riscoResumo?.ano_alvo_previsao ?? "breve"} (estimativa com base no
+            histórico até o último ano completo disponível).
           </>
         ) : (
           <>Clique em um município vizinho pra ver os municípios parecidos com ele e continuar explorando.</>

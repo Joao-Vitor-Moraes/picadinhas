@@ -39,16 +39,28 @@ export interface ResumoEstados {
 // Contagem nacional por faixa de risco (ver utils/format.ts, RiscoFaixa) —
 // gerado estaticamente por notebooks/gerar_risco_municipios.py, carregado no
 // boot junto com resumo_estados/serie_nacional (nao depende do backend).
+// ano_alvo_previsao: o modelo nunca foi retreinado, mas a partir de quando os
+// anos 2024/2025 viraram dado real, a previsao passou a apontar pro ano
+// seguinte ao ultimo ano cheio disponivel (2026) — ver CLAUDE.md.
 export interface RiscoResumo {
+  ano_alvo_previsao: number;
   n_total: number;
   n_baixo: number;
   n_medio: number;
   n_alto: number;
 }
 
+// Cada ano carrega a vacina "todas" + as 5 do MVP, mais a proveniencia do
+// dado daquele ano (constante entre municipios, repetida por ano pra ficar
+// junto do dado que ela descreve) — usada pro selo de fonte na UI.
+export type AnoRegistroNacional = Record<VacinaKey, number | null> & {
+  fonte: "vacinabr" | "pni_reconstruido";
+  ano_parcial: boolean;
+};
+
 export interface SerieNacional {
   years: number[];
-  brasil: Record<string, Record<VacinaKey, number>>;
+  brasil: Record<string, AnoRegistroNacional>;
 }
 
 export interface UFMunPaths {
@@ -72,9 +84,27 @@ export interface MunicipioAnoRegistro {
   ok: boolean | null;
 }
 
+// Proveniencia por ano (2014-2023 = "vacinabr", 2024-2026 = "pni_reconstruido",
+// ver CLAUDE.md) — repetida em cada ano/municipio porque e assim que os dados
+// chegam no JSON, mas o valor e o mesmo pra todo mundo num dado ano. 2026 vem
+// com ano_parcial=true (so 8 meses) — ver AVISO_2026_POR_VACINA em utils/format.ts
+// pras vacinas que saem estruturalmente distorcidas nesse ano.
+export interface AnoRegistro {
+  fonte: "vacinabr" | "pni_reconstruido";
+  ano_parcial: boolean;
+  meses_dado_numerador: number;
+  meses_dado_denominador: number;
+  todas: MunicipioAnoRegistro;
+  bcg: MunicipioAnoRegistro;
+  hepb: MunicipioAnoRegistro;
+  penta: MunicipioAnoRegistro;
+  polio: MunicipioAnoRegistro;
+  triplice: MunicipioAnoRegistro;
+}
+
 export interface UFMunicipiosData {
   meta_municipios: Record<string, MunicipioMeta>;
-  series: Record<string, Record<string, Record<VacinaKey, MunicipioAnoRegistro>>>;
+  series: Record<string, Record<string, AnoRegistro>>;
 }
 
 export interface UFData {

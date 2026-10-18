@@ -77,11 +77,12 @@ function Pagina() {
 
       <div className="note-strip">
         <strong>Picadinhas</strong> — cobertura vacinal nos municípios brasileiros (BCG,
-        Poliomielite inativada, Pentavalente, Tríplice Viral, Hepatite B), 2014–2023. Dados do{" "}
+        Poliomielite inativada, Pentavalente, Tríplice Viral, Hepatite B), 2014–2026. Dados do{" "}
         <a href="https://iqc.org.br/observatorio/vacinabr" target="_blank" rel="noreferrer">
           VacinaBR (iqc.org.br)
-        </a>
-        .
+        </a>{" "}
+        até 2023; anos mais recentes usam uma base alternativa do governo, com uma margem de erro
+        um pouco maior (veja o selo "estimado" nos gráficos).
       </div>
 
       <RankingTable />

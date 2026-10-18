@@ -537,6 +537,240 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     silenciosamente e o total anual sai errado sem nenhum aviso, então o
     capturador tem 4 tentativas com espera progressiva.
 
+- **Segundo modelo de risco: regressão numérica substitui a classificação**
+  (`notebooks/notebook05_regressao_risco.ipynb`,
+  `data/processed/modelo_regressao_risco.json`). O `notebook04_risco.ipynb`
+  e `modelo_risco.json` (classificação — "vai ter queda atípica, sim/não")
+  **ficam intocados**, registro histórico da primeira abordagem.
+  - **Motivo da troca:** classificação binária só enxerga o extremo
+    (z-score < -2, ~2,8% dos casos). Regressão numérica prevê a cobertura
+    geral real do ano seguinte (mesma definição de "perfil combinado" do
+    Dia 4/5 — média das 5 vacinas por ibge6/ano) e usa toda a variação, não
+    só o extremo. "Risco" vira uma leitura da previsão (`cobertura_T_real -
+    cobertura_T+1_prevista`), sem limiar de "atípico" embutido no treino.
+  - Reaproveita o pipeline de features causais do notebook04 (expanding
+    window, sem vazamento) **sem nenhuma mudança de lógica** — só o alvo
+    muda de binário pra numérico. Treino só com 2014-2023 (VacinaBR); os
+    anos reconstruídos do PNI (2024-2026) não entram no treino, só validam.
+  - **Primeira tentativa deu ajuste ruim, e a causa não era a esperada:**
+    a suspeita de antemão era colinearidade (os dummies de cluster são
+    derivados das mesmas 3 features contínuas usadas na regressão) — mas o
+    número de condição saiu baixo (7,8-8,0, bem abaixo do limiar de alerta
+    de 30), descartando essa hipótese. O problema real: R² **negativo** em
+    todo teste (pior que prever a média). Causa raiz — a cobertura geral
+    média NACIONAL por ano tem uma tendência forte (84,5% em 2014, caindo
+    até um fundo de 69,9% em 2021, recuperando pra 88-92% em 2023-2025) que
+    nenhuma feature (todas relativas ao próprio município) capturava. O
+    treino (T=2016-2020) caiu inteiro na fase de queda; o teste/validação
+    caiu na fase de recuperação — o modelo aprendeu "cobertura tende a cair"
+    e subestimou sistematicamente quase todo mundo depois. Sintoma mais
+    claro: 92,9% dos municípios saíam com "queda prevista", o que não é
+    plausível com o país inteiro subindo.
+  - **Correção (decisão do usuário dentre 3 opções): destrend por ano**,
+    mesma lógica do z-score por ano do Dia 5 — o modelo passa a prever o
+    **desvio** em relação à média nacional do ano (`cobertura_T+1_real -
+    cobertura_nacional_T+1`), isolando o sinal relativo do município do
+    choque nacional. A previsão absoluta é reconstruída somando de volta
+    uma **extrapolação linear ingênua** da tendência nacional
+    (`nacional_T + (nacional_T - nacional_T-1)`) — deliberadamente simples
+    (não é um forecast nacional robusto; um forecast nacional sofisticado
+    seria outro projeto), usando só dados conhecidos até T (nunca o valor
+    real do próprio ano sendo previsto).
+  - **Resultado da correção, honesto — funcionou bem para 2024, não tanto
+    para 2025:**
+    | Validação | MAE sem destrend | MAE com destrend | R² sem | R² com |
+    |---|---|---|---|---|
+    | Teste interno (2022-23) | 13,90 p.p. | 13,83 p.p. | -0,351 | -0,440 |
+    | **2024 real** (de T=2023) | 13,89 p.p. | **7,45 p.p.** | -2,040 | **-0,262** |
+    | 2025 real (de T=2024) | 10,18 p.p. | 9,71 p.p. | -0,612 | -0,719 |
+
+    A extrapolação linear funciona bem quando a tendência nacional é suave
+    (2023→2024, ainda subindo), mas erra feio perto de pontos de inflexão:
+    2022 é o fundo do poço (extrapolar a queda piora a previsão) e 2025 teve
+    um platô/leve recuo depois do pico de 2024 (extrapolar a subida
+    superestima). Isso é uma limitação conhecida do método de extrapolação
+    (ingênuo de propósito), não do modelo por município em si.
+  - **O sintoma principal (viés sistemático) foi corrigido de verdade:**
+    município com "queda prevista" (2024→2025) caiu de 92,9% pra **24,8%**
+    — bem mais plausível. Percentis da queda prevista (p.p.): p10=-14,93,
+    p50=-4,71 (mediana já é melhora prevista), p90=+3,89, p99=+8,98. Faixas
+    de risco (ex: "alto risco" = top N%) **não foram definidas** — ficam
+    pra decisão do usuário depois de ver a distribuição, mesmo padrão do
+    `isolamento_similaridade` do Dia 5. Lista completa e top 20 municípios
+    por queda prevista estão no notebook05.
+  - **Pendência em aberto:** o metodo de extrapolação nacional é
+    deliberadamente simples e erra em pontos de inflexão — se o risco for
+    pra produção, vale revisitar essa peça especificamente (não o modelo
+    por município, que está estável) antes de confiar nas previsões perto
+    de uma virada de tendência.
+  - Ainda não integrado no backend/frontend — fica pra uma proxima etapa,
+    separada, como o notebook04/classificação também ainda não tinha sido
+    quando foi criado.
+  - **Veredito final (mesmo notebook, Etapas J/K): resultado NEGATIVO pra
+    regressão linear neste problema.** Testamos mais duas coisas antes de
+    decidir: (1) o baseline trivial de persistência (`previsto_T+1 =
+    real_T`, sem modelo nenhum) nos mesmos 3 recortes; (2) um modelo de
+    **delta** (prevê a mudança `cobertura_T+1 - cobertura_T`, não o nível
+    absoluto, reconstruindo a previsão como `real_T + delta_previsto` —
+    mesmas features causais, mesmo numpy/lstsq).
+
+    | Método | MAE teste | MAE 2024 | MAE 2025 | R² teste | R² 2024 | R² 2025 |
+    |---|---|---|---|---|---|---|
+    | **Persistência** | **13,72** | **7,14** | **6,14** | -0,603 | -0,368 | **+0,223** |
+    | Nível sem destrend | 13,90 | 13,89 | 10,18 | **-0,351** | -2,040 | -0,612 |
+    | Nível com destrend | 13,83 | 7,45 | 9,71 | -0,440 | -0,262 | -0,719 |
+    | Delta | 13,84 | 7,22 | 6,86 | -0,505 | **-0,195** | +0,069 |
+
+    **A persistência vence ou empata em MAE nos 3 recortes**, contra
+    qualquer variante de regressão linear testada (nível bruto, nível com
+    destrend, ou delta). Em R², o resultado é misto (nenhum método vence
+    nos 3 recortes ao mesmo tempo) — mas nenhuma variante de regressão
+    supera a persistência de forma consistente o bastante pra justificar a
+    complexidade extra. O modelo de delta foi a melhor variante entre as
+    regressões (mais perto da persistência que as outras duas), mas ainda
+    perde em MAE nos 3 recortes.
+  - **Conclusão registrada, sem decisão de continuidade tomada:** pra esse
+    problema (prever cobertura vacinal geral do município no ano seguinte,
+    só com histórico do próprio município), regressão linear simples não
+    supera "assumir que o ano que vem repete o ano passado". Não decidido
+    aqui se vale tentar outra abordagem (ex: um modelo não-linear, mais
+    features externas, ou aceitar a persistência como o preditor de
+    produção) — fica em aberto, decisão do usuário.
+
+- **Integração de 2024-2026 no frontend + ano-alvo do risco atualizado.**
+  Decisão de enquadramento: os anos novos aparecem como **dado real** na UI
+  (não como "previsão"), com um selo discreto de proveniência — distinto do
+  card de risco (que continua explicitamente rotulado como estimativa de
+  modelo).
+  - **Gerador reconstruído do zero:** não existia versionado nenhum script
+    que gerasse `data/processed/municipios/{UF}_municipios.json` (rodou uma
+    vez no Dia 6 e o script não sobrou). Reconstruído por engenharia reversa
+    da estrutura dos JSONs existentes: `notebooks/gen_municipios_json.py`,
+    agora cobrindo 2014-2026 em vez de só 2014-2023. Cada (município, ano)
+    carrega `fonte`/`ano_parcial`/`meses_dado_numerador`/
+    `meses_dado_denominador` como campos irmãos das 5 vacinas + "todas"
+    (não repetidos por vacina — o valor é o mesmo pra todo mundo naquele
+    ano). `gerar_serie_nacional.py` e `gerar_resumo_estados.py` também
+    atualizados/reexecutados.
+  - **`cluster`/`media_cobertura`/`tendencia` ("Perfil do município") NÃO
+    mudam** — continuam vindo de `clusters_municipios_mvp.csv` (Dia 4,
+    histórico 2014-2023). Só a série de cobertura por ano e o risco são
+    estendidos. Mesma lógica pra `resumo_estados.json`: `cobertura_media`/
+    `tendencia_media`/`cluster_predominante` continuam histórico 2014-2023;
+    só `n_municipios_risco_alto` foi recalculado com o ano-alvo novo.
+  - **Selo de proveniência** (`frontend/src/components/SeloFonte.tsx`,
+    reaproveitado em `StatRail`, `Chart`, `RankingTable`, `MapView`,
+    `TopBar`): badge "estimado" clicável (não hover — hover e click brigavam
+    entre si num bug encontrado e corrigido durante o teste, já que
+    `onMouseLeave` fechava o tooltip que o `onClick` acabava de abrir) que
+    mostra texto em português simples, zero menção a PNI/SINASC/dedup — essas
+    palavras só existem em comentário de código. Fecha ao clicar fora.
+  - **Ressalva extra pra 2026** (ano parcial, 8 meses): `ano_parcial` liga um
+    parágrafo adicional no mesmo selo. Quando a vacina selecionada não é
+    "todas" e o ano é parcial, um terceiro parágrafo específico aparece pra
+    Tríplice Viral, Pentavalente ou Poliomielite (`AVISO_2026_POR_VACINA`,
+    `frontend/src/utils/format.ts`) explicando o viés estrutural de cada uma
+    (Tríplice: denominador é a coorte do ano inteiro, numerador só tem 8
+    meses; Penta/Pólio: esquema de 3 doses incompleto pros nascidos no fim
+    da janela).
+  - **`NationalFooter` (5 medidores, um por vacina) foi ajustado pra usar o
+    último ano CHEIO (2025), não 2026** — esse componente mostra Tríplice/
+    Penta/Pólio individualmente sem espaço pra um aviso por medidor, então
+    usar 2026 ali mostraria os números estruturalmente distorcidos sem
+    nenhum contexto. Decisão: pular o ano parcial nesse componente
+    especificamente, não nos outros (que têm o selo).
+  - **Risco: ano-alvo atualizado, modelo NUNCA retreinado.** Novo script
+    `notebooks/atualizar_features_risco_2025.py` recalcula as features
+    causais (expanding window) incluindo 2024/2025 reais, roda o pipeline de
+    cluster/isolamento por corte transversal (igual notebook04) uma única
+    vez em **T=2025** (último ano cheio; 2026 fica de fora por ser parcial),
+    e aplica os coeficientes **congelados** de `modelo_risco.json` sobre
+    essas features novas — desloca a previsão de "risco para 2024" (já virou
+    dado real, obsoleto) pra "**risco de queda em 2026**". Gera
+    `data/processed/features_causais_risco_2025.csv`, com as mesmas colunas
+    de `clusters_municipios_mvp.csv` de propósito, pra `backend/main.py` só
+    trocar o caminho do arquivo (`FEATURES_RISCO_CSV`) sem mudar
+    `calcular_risco()`. `gerar_risco_municipios.py` e
+    `gerar_resumo_estados.py` também apontados pra essa fonte nova.
+  - **Efeito colateral observado, não corrigido (fora do escopo pedido):** a
+    distribuição de risco mudou bastante — "alto" foi de 1.051 (19%, ano-alvo
+    2024) pra **1.961 (35%, ano-alvo 2026)**. Hipótese: os cortes de faixa
+    (`cortes_risco` em `modelo_risco.json`) foram calibrados nos percentis do
+    conjunto de teste de 2021-2022 (período de cobertura nacional baixa,
+    ~70-80%) e ficaram congelados; aplicados a T=2025 (cobertura nacional já
+    recuperada, ~88-92%), a distribuição de entrada mudou mas os cortes não
+    — o mesmo tipo de problema de covariate shift já visto no modelo de
+    regressão (ver acima). Não investigado a fundo nem corrigido aqui porque
+    não foi pedido — fica registrado pra não ser confundido com um bug
+    silencioso depois.
+  - Texto de ano fixo ("risco no próximo ano", relativo) trocado por ano
+    explícito em toda a UI (`StatRail`, `Callouts`, `RedeMunicipio`,
+    `RankingTable`), lido dinamicamente de `riscoResumo.ano_alvo_previsao`
+    (nunca hardcoded) — resolve a pendência antiga sobre rótulo relativo vs.
+    absoluto.
+  - Testado no Chrome: selo abre/fecha, 3 níveis de aviso empilham
+    corretamente (geral + parcial + por-vacina), ano 2023 não mostra selo
+    nenhum (regressão ok), callout do mapa nacional e paineis de
+    estado/município mostram "risco para 2026", medidor nacional mostra 2025
+    sem distorção. Sem erros no console.
+
+- **Corte de risco (Alto/Médio/Baixo) recalibrado por percentil relativo,
+  não probabilidade absoluta.** O efeito colateral registrado na entrada
+  anterior ("alto" foi de 19% pra 35% só por causa do ano-alvo mudar) foi
+  investigado e corrigido.
+  - **Causa confirmada:** `cortes_risco` em `modelo_risco.json` (alto=0,5756,
+    medio=0,5153) são valores ABSOLUTOS de probabilidade, originalmente
+    calibrados nos percentis 90/70 do conjunto de TESTE do notebook04
+    (2021-2022). Aplicados à população completa de 2014-2023
+    (`clusters_municipios_mvp.csv`) — a mesma que gerou o "~19%" original —
+    esses valores absolutos na verdade caem nos percentis **81,13/50,93**
+    dessa população, não 90/70 (a forma da distribuição de probabilidade do
+    conjunto de teste é diferente da população inteira). Em T=2025, com a
+    cobertura nacional média bem mais alta que no período de teste (~88-92%
+    vs. ~70-80%), a mesma probabilidade absoluta de corte passou a
+    corresponder a uma fatia bem maior da população — daí o 19%→35%.
+  - **Correção (mesmo princípio do `percentil_isolamento` do Dia 5— corte
+    por percentil mantém o significado estável quando o contexto muda, ao
+    contrário de um valor absoluto):** em vez de usar os valores absolutos
+    de `modelo_risco.json` como corte fixo, `atualizar_features_risco_2025.py`
+    agora (1) recalcula a que percentil esses valores absolutos
+    correspondem dentro da população ORIGINAL (2014-2023) — 81,13 e 50,93,
+    recalculado a cada execução a partir de `clusters_municipios_mvp.csv`,
+    nunca hardcoded; (2) aplica esse MESMO percentil à distribuição ATUAL
+    (T=2025) via `np.percentile`, obtendo um novo corte absoluto específico
+    pra essa população (alto=0,6209, medio=0,5489); (3) classifica com esse
+    corte novo. `modelo_risco.json` (coeficientes e os cortes absolutos
+    originais, como registro histórico) **não foi alterado** — só a regra
+    de classificação downstream mudou. Auditoria da calibração salva em
+    `data/processed/cortes_risco_percentil.json`.
+  - **Resultado — antes/depois:**
+    | Faixa | Corte absoluto fixo (distorcido) | Corte por percentil (corrigido) |
+    |---|---|---|
+    | Alto | 1.961 (35,2%) | **1.051 (18,9%)** |
+    | Médio | 1.746 (31,3%) | 1.682 (30,2%) |
+    | Baixo | 1.863 (33,5%) | 2.837 (50,9%) |
+
+    O resultado corrigido ficou essencialmente idêntico ao ~19%/30%/51% que
+    a população original (2014-2023) sempre teve — por construção: top
+    18,87% de qualquer população de 5.570 é sempre ~1.051 municípios,
+    independente do formato da distribuição. Pequeno deslocamento é
+    esperado (outro ano, outra população); o que não era esperado — e foi
+    corrigido — era a faixa "alto" quase dobrar de tamanho.
+  - **Backend simplificado como consequência:** `calcular_risco()` em
+    `backend/main.py` não recalcula mais probabilidade/faixa a partir dos
+    coeficientes — só **lê** `risco_probabilidade`/`risco_faixa` já prontos
+    de `features_causais_risco_2025.csv`. Motivo: o corte por percentil só
+    faz sentido calculado uma vez sobre a população inteira
+    (`np.percentile` não é uma operação por linha); reimplementar essa
+    lógica de novo no backend, município por município, duplicaria a regra
+    em dois lugares e arriscaria o backend ficar com uma versão desatualizada
+    do corte enquanto o site estático já tivesse a nova (como quase
+    aconteceu aqui — o backend precisou ser reiniciado manualmente pra
+    carregar o corte corrigido, já que o cache fica todo em memória desde o
+    startup).
+  - Verificado que backend e site estático batem exatamente após o reinício
+    (mesma distribuição 1.051/1.682/2.837 nos dois).
+
 ## Roadmap (7 dias)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
 Dia 3 Limpeza & EDA ✅ concluído (Parte 1 filtragem segura + CSV limpo; Parte 2

@@ -3,7 +3,16 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAppStore } from "../store/useAppStore";
 import { useRota } from "../hooks/useRota";
 import { useFiltros } from "../hooks/useFiltros";
-import { CORTE_ALTO, CORTE_BAIXO, CORTE_MEDIO, colorFor, fmtPct } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
+import {
+  AVISO_2026_POR_VACINA,
+  CORTE_ALTO,
+  CORTE_BAIXO,
+  CORTE_MEDIO,
+  colorFor,
+  ehDadoEstimado,
+  fmtPct,
+} from "../utils/format";
 
 interface TooltipState {
   x: number;
@@ -22,7 +31,12 @@ export function MapView() {
   const ufLoading = useAppStore((s) => s.ufLoading);
   const ensureUF = useAppStore((s) => s.ensureUF);
   const setHoveredUf = useAppStore((s) => s.setHoveredUf);
+  const serieNacional = useAppStore((s) => s.serieNacional);
   const { vacina, ano } = useFiltros();
+  const registroAno = serieNacional?.brasil[ano];
+  const anoEstimado = ehDadoEstimado(registroAno?.fonte);
+  const avisoVacinaMapa =
+    vacina !== "todas" && registroAno?.ano_parcial ? AVISO_2026_POR_VACINA[vacina] : undefined;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -224,6 +238,7 @@ export function MapView() {
         {municipioIbge6
           ? "clique em − pra voltar ao estado"
           : `${ufData.paths.features.length} municípios · clique para o detalhe`}
+        {anoEstimado && <SeloFonte parcial={registroAno?.ano_parcial} avisoVacina={avisoVacinaMapa} />}
       </div>
       <div
         className={`zoom-stage${dragging ? " dragging" : ""}`}
@@ -256,7 +271,8 @@ export function MapView() {
                   onMouseMove={(e) =>
                     showTooltip(
                       e,
-                      `<b>${f.name}</b><br>${v !== null ? `<span class="tt-val">${fmtPct(v)}</span> de cobertura` : "sem dado"}`,
+                      `<b>${f.name}</b><br>${v !== null ? `<span class="tt-val">${fmtPct(v)}</span> de cobertura` : "sem dado"}` +
+                        (anoEstimado ? " <i>(estimado)</i>" : ""),
                     )
                   }
                   onMouseLeave={() => setTooltip(null)}

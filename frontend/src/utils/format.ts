@@ -1,3 +1,5 @@
+import type { VacinaKey } from "../types/data";
+
 export function fmtPct(v: number | null | undefined): string {
   if (v === null || v === undefined || Number.isNaN(v)) return "—";
   return (
@@ -41,10 +43,12 @@ export function statusText(w: StatusWord | null): string {
   return { bad: "Crítico", warn: "Baixa cobertura", near: "Próximo da meta", ok: "Na meta" }[w];
 }
 
-// Risco de queda brusca de cobertura em 2024, previsto por um modelo
-// treinado sobre o histórico de cada município (ver CLAUDE.md, branch
-// grafo-comunidades). Reaproveita a mesma paleta de semáforo já usada pra
-// cobertura (--good/--low/--crit) em vez de inventar cores novas.
+// Risco de queda brusca de cobertura, previsto por um modelo treinado sobre
+// o histórico de cada município (ver CLAUDE.md). O modelo nunca é
+// retreinado, mas o ANO-ALVO da previsão muda conforme mais anos reais vão
+// ficando disponíveis — por isso o ano vem sempre de `riscoResumo.ano_alvo_previsao`
+// (boot) em vez de fixo no texto. Reaproveita a paleta de semáforo já usada
+// pra cobertura (--good/--low/--crit) em vez de inventar cores novas.
 export type RiscoFaixa = "baixo" | "medio" | "alto";
 
 export function riscoTexto(faixa: RiscoFaixa | null | undefined): string {
@@ -56,3 +60,41 @@ export function riscoCor(faixa: RiscoFaixa | null | undefined): string {
   if (!faixa) return "var(--ink-faint)";
   return { baixo: "var(--good)", medio: "var(--low)", alto: "var(--crit)" }[faixa];
 }
+
+// Selo de proveniência (Parte 2 da extensão pro PNI, ver CLAUDE.md): zero
+// jargão técnico visível (nada de "PNI", "SINASC" ou "dedup" no texto que o
+// usuário lê — só em comentário de código).
+export type FonteDado = "vacinabr" | "pni_reconstruido";
+
+export function ehDadoEstimado(fonte: FonteDado | string | null | undefined): boolean {
+  return fonte === "pni_reconstruido";
+}
+
+export const TEXTO_SELO_FONTE =
+  "A partir de 2024 usamos outra base pública do governo, porque a fonte " +
+  "original ainda não reuniu esses anos. Os números passam por um ajuste " +
+  "pra ficarem comparáveis, mas têm uma margem de erro um pouco maior que " +
+  "os anos anteriores.";
+
+export const TEXTO_SELO_2026_PARCIAL =
+  "2026 ainda não terminou — esses números cobrem só uma parte do ano, não " +
+  "dá pra comparar diretamente com um ano completo.";
+
+// 2026 é parcial (8 meses) e distorce estruturalmente estas 3 vacinas (ver
+// CLAUDE.md): a Tríplice Viral é medida sobre a coorte de 1 ano inteira, mas
+// só 8 meses de dose entram no numerador (sai baixa demais); Penta/Pólio
+// dependem do esquema de 3 doses completo — crianças nascidas no fim do
+// período ainda não tiveram tempo de tomar todas.
+export const AVISO_2026_POR_VACINA: Partial<Record<VacinaKey, string>> = {
+  triplice:
+    "Essa vacina é medida em crianças que completaram 1 ano — com só 8 meses " +
+    "de 2026 registrados, esse número sai artificialmente baixo.",
+  penta:
+    "Com só 8 meses de 2026 registrados, algumas crianças nascidas no fim " +
+    "desse período ainda não tiveram tempo de tomar as 3 doses — esse número " +
+    "tende a ficar abaixo do real.",
+  polio:
+    "Com só 8 meses de 2026 registrados, algumas crianças nascidas no fim " +
+    "desse período ainda não tiveram tempo de tomar as 3 doses — esse número " +
+    "tende a ficar abaixo do real.",
+};

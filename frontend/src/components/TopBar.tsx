@@ -23,7 +23,10 @@ export function TopBar() {
 
   return (
     <div className="topbar">
-      <span className="brand-name display">Picadinhas</span>
+      <div className="brand">
+        <img className="brand-icon" src="/images/logo-icon.png" alt="" />
+        <span className="brand-name display">Imuniza Brasil</span>
+      </div>
       <div className="breadcrumb">
         <button className={!uf ? "active" : ""} onClick={() => irPara("/")}>
           Brasil

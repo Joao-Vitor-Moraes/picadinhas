@@ -15,7 +15,7 @@ const COR_OUTRAS = "#9c9587";
 // Risco de queda atipica (modelo do backend): cor segue a paleta de status
 // JA reservada no app pra "semaforo" de cobertura (--crit/--low/--good) em
 // vez de inventar uma nova — mesma logica de "alto risco = vermelho" usada
-// em qualquer outro lugar do Picadinhas. Como a cor dos nos ja esta ocupada
+// em qualquer outro lugar do Imuniza Brasil. Como a cor dos nos ja esta ocupada
 // pela comunidade, o risco usa DUAS codificacoes redundantes (skill de
 // dataviz): tamanho do no (magnitude, sequencial) + anel de status (cor),
 // nao so uma — assim quem nao distingue bem as cores ainda le o risco pelo

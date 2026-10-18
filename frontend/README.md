@@ -1,4 +1,4 @@
-# Picadinhas — frontend
+# Imuniza Brasil — frontend
 
 Vite + React + TypeScript. O app principal (mapa, ranking, filtros) só lê os
 JSONs já processados pelo pipeline Python, sem backend (ver `../CLAUDE.md` na

@@ -44,6 +44,7 @@ Rodar local: `uvicorn backend.main:app --reload` a partir da raiz do repo
 """
 
 import json
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -160,9 +161,19 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="Picadinhas — backend de grafo", lifespan=lifespan)
 
+# Origens permitidas via env var (ALLOWED_ORIGINS, separadas por virgula) —
+# em producao (Render) vai apontar pro dominio da Vercel; em dev local, sem
+# a env var definida, cai no fallback do Vite (porta 5173).
+_allowed_origins_env = os.environ.get("ALLOWED_ORIGINS", "").strip()
+ALLOWED_ORIGINS = (
+    [origin.strip() for origin in _allowed_origins_env.split(",") if origin.strip()]
+    if _allowed_origins_env
+    else ["http://localhost:5173"]
+)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["GET"],
     allow_headers=["*"],
 )

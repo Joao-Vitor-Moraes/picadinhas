@@ -531,6 +531,15 @@ a {
   }
   .map-col {
     flex-direction: column;
+    /* ao virar coluna, o eixo cruzado passa a ser horizontal (largura) —
+       align-items:flex-start (herdado da regra base, pensada pro layout em
+       linha) faz os filhos encolherem pro tamanho do conteudo em vez de
+       ocupar a largura toda, e e por isso que o mapa (sem largura propria,
+       so width:100% em cascata) colapsava pra 0px no celular. stretch
+       devolve o comportamento default de flexbox, que e o que o restante
+       da cadeia (.callout-stage/.map-viewport/svg.map-svg, todos em
+       width:100%) sempre esperou. */
+    align-items: stretch;
     padding-top: 24px;
   }
 }

@@ -823,4 +823,14 @@ URL (`/`, `/:uf`, `/:uf/:municipio`), drill-down Brasil→estado→município co
 zoom e animação de transição, filtro de vacina/ano, busca e ranking; redesign
 editorial aprovado e mergeado na main (ver detalhes acima: callouts
 contextuais no hover do mapa nacional, header com imagem de fundo, anéis de
-progresso por vacina no rodapé nacional) | Dia 7 Deploy
+progresso por vacina no rodapé nacional) |
+Dia 7 Deploy ✅ concluído — backend (FastAPI) no Render como Blueprint a
+partir do `render.yaml` (serviço `imuniza-brasil-backend`,
+https://imuniza-brasil-backend.onrender.com, plano free — primeira
+requisição após inatividade pode levar ~50s pra "acordar"); frontend
+(Vite+React) na Vercel com Root Directory `frontend` e env var
+`VITE_API_BASE_URL` apontando pro Render
+(https://imuniza-brasil.vercel.app); `ALLOWED_ORIGINS` no Render liberado
+pro domínio da Vercel. Testado de ponta a ponta no ar: mapa nacional,
+drill-down estado/município e painel de rede/grafo do município (a parte
+que depende do backend) sem erro no console. Fecha o MVP dos 7 dias.

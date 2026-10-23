@@ -5,7 +5,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 70.6,
       "tendencia": 1.0,
-      "risco_probabilidade": 0.663,
+      "risco_probabilidade": 0.667,
       "risco_faixa": "alto"
     },
     "160010": {
@@ -13,7 +13,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 72.5,
       "tendencia": -3.1,
-      "risco_probabilidade": 0.4468,
+      "risco_probabilidade": 0.4475,
       "risco_faixa": "baixo"
     },
     "160015": {
@@ -21,7 +21,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 66.9,
       "tendencia": 1.5,
-      "risco_probabilidade": 0.4221,
+      "risco_probabilidade": 0.2969,
       "risco_faixa": "baixo"
     },
     "160020": {
@@ -29,7 +29,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 76.9,
       "tendencia": -3.1,
-      "risco_probabilidade": 0.3623,
+      "risco_probabilidade": 0.3778,
       "risco_faixa": "baixo"
     },
     "160021": {
@@ -37,7 +37,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 73.3,
       "tendencia": -4.8,
-      "risco_probabilidade": 0.4404,
+      "risco_probabilidade": 0.4202,
       "risco_faixa": "baixo"
     },
     "160023": {
@@ -45,7 +45,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 68.4,
       "tendencia": -1.4,
-      "risco_probabilidade": 0.5467,
+      "risco_probabilidade": 0.4295,
       "risco_faixa": "baixo"
     },
     "160025": {
@@ -53,7 +53,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 40.6,
       "tendencia": 2.7,
-      "risco_probabilidade": 0.5772,
+      "risco_probabilidade": 0.5959,
       "risco_faixa": "medio"
     },
     "160027": {
@@ -61,7 +61,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 85.9,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.4221,
+      "risco_probabilidade": 0.4151,
       "risco_faixa": "baixo"
     },
     "160030": {
@@ -69,7 +69,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 76.7,
       "tendencia": -3.7,
-      "risco_probabilidade": 0.3525,
+      "risco_probabilidade": 0.3544,
       "risco_faixa": "baixo"
     },
     "160040": {
@@ -77,7 +77,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 41.5,
       "tendencia": 1.7,
-      "risco_probabilidade": 0.3529,
+      "risco_probabilidade": 0.3568,
       "risco_faixa": "baixo"
     },
     "160050": {
@@ -85,7 +85,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 57.2,
       "tendencia": -1.5,
-      "risco_probabilidade": 0.23,
+      "risco_probabilidade": 0.2196,
       "risco_faixa": "baixo"
     },
     "160053": {
@@ -93,7 +93,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 48.5,
       "tendencia": -1.9,
-      "risco_probabilidade": 0.4447,
+      "risco_probabilidade": 0.4451,
       "risco_faixa": "baixo"
     },
     "160055": {
@@ -101,7 +101,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 56.9,
       "tendencia": 0.7,
-      "risco_probabilidade": 0.4355,
+      "risco_probabilidade": 0.4944,
       "risco_faixa": "baixo"
     },
     "160060": {
@@ -109,7 +109,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 77.1,
       "tendencia": -3.8,
-      "risco_probabilidade": 0.3892,
+      "risco_probabilidade": 0.3802,
       "risco_faixa": "baixo"
     },
     "160070": {
@@ -117,7 +117,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 84.0,
       "tendencia": -3.0,
-      "risco_probabilidade": 0.4953,
+      "risco_probabilidade": 0.4911,
       "risco_faixa": "baixo"
     },
     "160080": {
@@ -125,8 +125,8 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 79.7,
       "tendencia": 1.5,
-      "risco_probabilidade": 0.6434,
-      "risco_faixa": "alto"
+      "risco_probabilidade": 0.5807,
+      "risco_faixa": "medio"
     }
   },
   "series": {

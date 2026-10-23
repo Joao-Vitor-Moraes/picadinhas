@@ -13,10 +13,11 @@ concentracao de destaques), sem repetir a logica de deteccao em si.
 Atualizacao (branch grafo-comunidades): n_municipios_risco_alto por estado.
 
 Atualizacao (ano-alvo do risco): a faixa de risco NAO vem mais de recalcular
-aqui -- vem pronta de data/processed/features_causais_risco_2025.csv (ver
-atualizar_features_risco_2025.py), que aplica o modelo ja treinado
-(congelado) sobre features causais recalculadas com 2024/2025 reais. Ou
-seja, "risco alto" aqui significa "risco de queda em 2026", nao mais 2024.
+aqui -- vem pronta de data/processed/features_causais_risco_aplicacao.csv (ver
+atualizar_features_risco_aplicacao.py), que aplica o modelo ja treinado
+(congelado) sobre features causais recalculadas com os anos novos reais. Ou
+seja, "risco alto" aqui significa "risco de queda no ano-alvo" (ano seguinte
+ao ultimo dado, de-hardcoded no Dia 8), nao mais 2024.
 `cobertura_media`/`tendencia_media`/`cluster_predominante` CONTINUAM vindo
 de clusters_municipios_mvp.csv (historico 2014-2023, clustering do Dia 4,
 nao redefinido) -- so o numero de risco foi atualizado.
@@ -26,7 +27,7 @@ import json
 import pandas as pd
 
 df = pd.read_csv("data/processed/clusters_municipios_mvp.csv", dtype={"ibge6": str})
-risco = pd.read_csv("data/processed/features_causais_risco_2025.csv", dtype={"ibge6": str})
+risco = pd.read_csv("data/processed/features_causais_risco_aplicacao.csv", dtype={"ibge6": str})
 destaques = pd.read_csv("data/processed/destaques_completo.csv")
 n_destaques_por_uf = destaques.groupby("uf").size()
 

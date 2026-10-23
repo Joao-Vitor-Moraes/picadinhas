@@ -3,18 +3,30 @@ Atualiza o ANO-ALVO do modelo de risco de queda atipica, SEM retreinar nada.
 
 Contexto: o modelo original (notebook04_risco.ipynb, modelo_risco.json) foi
 treinado com 2014-2023 e aplicado sobre as features causais em T=2023 (ultimo
-ano disponivel na epoca) para gerar "risco para 2024". Agora que 2024 e 2025
-viraram dado real (reconstruido do PNI, ver CLAUDE.md), aquele "risco para
-2024" ficou obsoleto -- 2024 ja aconteceu. O modelo (coeficientes +
-padronizacao) continua EXATAMENTE o mesmo; so a MATERIA-PRIMA (as features
-causais) e recalculada incluindo 2024/2025 reais, deslocando o ano-alvo da
-previsao pra frente: T=2025 (ultimo ano CHEIO disponivel -- 2026 fica de fora
-por ser parcial, 8 meses) -> previsao passa a ser "risco de queda em 2026".
+ano disponivel na epoca) para gerar "risco para 2024". Conforme anos novos
+viram dado real (reconstruido do PNI, ver CLAUDE.md), aquele alvo fica
+obsoleto. O modelo (coeficientes + padronizacao) continua EXATAMENTE o mesmo;
+so a MATERIA-PRIMA (as features causais) e recalculada incluindo os anos
+novos, deslocando o ano-alvo da previsao pra frente.
+
+ANO-ALVO SEM CHUMBO (Dia 8): T nao e mais escrito na mao. T = o ULTIMO ano
+disponivel no dado (`ano.max()`), e o alvo e sempre T+1. Hoje o dado vai ate
+2026, entao T=2026 -> previsao "risco de queda em 2027". Quando entrar dado
+de um ano novo, T e o alvo avancam sozinhos, sem editar este arquivo.
+
+IMPORTANTE -- base pode ser ANO PARCIAL: diferente da versao anterior (que
+cortava em 2025 pra ficar so com anos cheios), agora TODOS os anos entram,
+inclusive o ultimo se for parcial (ex: 2026 tem so 8 meses). Isso infla a
+PROBABILIDADE ABSOLUTA de risco (o mergulho do ano parcial puxa a tendencia
+de todo municipio pra baixo), MAS a FAIXA (Alto/Medio/Baixo) e por PERCENTIL
+relativo a populacao atual -- por construcao o "top ~19%" continua sendo
+~19%, independente do deslocamento da distribuicao. Por isso a UI mostra um
+selo de "estimativa" avisando que a base e ano incompleto (decisao do Dia 8).
 
 Isso reaproveita a mesma logica causal/rolling e o mesmo pipeline de
 cluster/isolamento por corte transversal do notebook04 (Etapas A/B), so que
-rodado numa unica vez em T=2025 (nao pros 10 anos de treino -- aqui so
-precisamos do ponto de aplicacao mais recente).
+rodado numa unica vez em T (nao pros 10 anos de treino -- aqui so precisamos
+do ponto de aplicacao mais recente).
 """
 import json
 
@@ -24,13 +36,16 @@ import pandas as pd
 RAIZ = r"C:\Users\Joao Vitor\Picadinhas"
 PROC = f"{RAIZ}/data/processed"
 
-# ---------- Passo 1: cobertura geral por (ibge6, ano), 2014-2025 (2026 fica de fora -- parcial) ----------
+# ---------- Passo 1: cobertura geral por (ibge6, ano), TODOS os anos disponiveis ----------
+# (inclui o ultimo ano mesmo se parcial -- ver docstring; de-hardcoded no Dia 8:
+#  nao ha mais filtro `ano <= <ano fixo>`.)
 mvp = pd.read_csv(f"{PROC}/cobertura_mvp_2014_2026.csv", dtype={"ibge6": str, "imunizante": str}, low_memory=False)
-mvp = mvp[mvp["ano"] <= 2025]
 cobertura_geral = mvp.groupby(["ibge6", "ano"])["cobertura_capada"].mean().reset_index()
 cobertura_geral_valid = cobertura_geral.dropna(subset=["cobertura_capada"]).sort_values(["ibge6", "ano"])
 
-print(f"cobertura geral valida (2014-2025): {len(cobertura_geral_valid)} linhas")
+ANO_MIN = int(cobertura_geral_valid["ano"].min())
+ANO_MAX = int(cobertura_geral_valid["ano"].max())
+print(f"cobertura geral valida ({ANO_MIN}-{ANO_MAX}): {len(cobertura_geral_valid)} linhas")
 
 
 # ---------- Passo 2: features causais (expanding), mesma funcao do notebook04 ----------
@@ -65,13 +80,16 @@ causal = (
 )
 causal["ano"] = causal["ano"].astype(int)
 
-T = 2025
+# T = ultimo ano disponivel, detectado do proprio dado (NAO chumbado). Alvo = T+1.
+T = int(cobertura_geral_valid["ano"].max())
+ANO_ALVO = T + 1
 MIN_ANOS_CAUSAL = 3
 sub = causal[(causal["ano"] == T) & (causal["n_validos_causal"] >= MIN_ANOS_CAUSAL)].copy()
-print(f"municipios elegiveis em T={T} (>= {MIN_ANOS_CAUSAL} anos de historico): {len(sub)}")
+print(f"municipios elegiveis em T={T} (>= {MIN_ANOS_CAUSAL} anos de historico): {len(sub)}  "
+      f"-> previsao para T+1={ANO_ALVO}")
 
 
-# ---------- Passo 3: cluster + isolamento no corte transversal de T=2025 (mesmas funcoes do notebook04) ----------
+# ---------- Passo 3: cluster + isolamento no corte transversal de T (mesmas funcoes do notebook04) ----------
 def kmeans_plus_plus_init(X, k, rng):
     n = X.shape[0]
     centros = np.empty((k, X.shape[1]))
@@ -157,7 +175,7 @@ sub["nome_cluster"] = sub["cluster_raw"].map(NOMES_LONGOS)
 dist5 = knn_distancias(Xp, k=5, batch=500)
 sub["isolamento_causal"] = dist5.mean(axis=1)
 
-print("Clusters em T=2025:", sub["nome_cluster"].value_counts().to_dict())
+print(f"Clusters em T={T}:", sub["nome_cluster"].value_counts().to_dict())
 
 
 # ---------- Passo 4: aplica o modelo JA TREINADO (congelado) sobre essas features novas ----------
@@ -189,15 +207,12 @@ sub["risco_probabilidade"] = probabilidade.round(4)
 # Os cortes_risco em modelo_risco.json sao valores absolutos de probabilidade
 # (0.5756/0.5153), calibrados nos percentis 90/70 do conjunto de TESTE do
 # notebook04 (2021-2022). Aplicados direto como corte fixo numa populacao
-# diferente (a aplicacao em 2014-2023 que deu "risco para 2024"), eles NAO
-# correspondiam a 10%/30% ali -- correspondiam a outro percentil, por causa
-# da forma da distribuicao de probabilidade ser diferente. E ao aplicar esse
-# MESMO valor absoluto de novo aqui, em T=2025 (distribuicao de entrada
-# deslocada pela recuperacao pos-pandemia -- cobertura nacional media foi de
-# ~70-80% no periodo de teste pra ~88-92% agora), a fracao "alto" quase
-# dobrou (19% -> 35%) so por causa do deslocamento da distribuicao, nao por
-# mudanca real de risco -- o mesmo problema de covariate shift ja visto no
-# modelo de regressao.
+# diferente, eles NAO correspondem a 10%/30% ali -- correspondem a outro
+# percentil, por causa da forma da distribuicao de probabilidade ser
+# diferente. E a cada ano a distribuicao de entrada se desloca (recuperacao
+# pos-pandemia, e agora tambem o mergulho do ano parcial na base), entao um
+# corte absoluto fixo faria a fracao "alto" variar sem mudanca real de risco
+# -- o mesmo problema de covariate shift ja visto no modelo de regressao.
 #
 # Correcao (mesmo principio do percentil_isolamento do Dia 5 -- um corte por
 # percentil mantem o significado estavel quando o contexto muda, ao contrario
@@ -223,7 +238,7 @@ print(f"\nPercentil (na populacao original 2014-2023) dos cortes absolutos antig
 
 corte_alto_atual = float(np.percentile(probabilidade, percentil_alto))
 corte_medio_atual = float(np.percentile(probabilidade, percentil_medio))
-print(f"Cortes atuais (percentil {percentil_alto:.1f}/{percentil_medio:.1f} aplicado a T=2025): "
+print(f"Cortes atuais (percentil {percentil_alto:.1f}/{percentil_medio:.1f} aplicado a T={T}): "
       f"alto={corte_alto_atual:.4f} medio={corte_medio_atual:.4f} "
       f"(cortes absolutos antigos eram alto={modelo['cortes_risco']['alto']:.4f} medio={modelo['cortes_risco']['medio']:.4f})")
 
@@ -232,9 +247,9 @@ faixa = np.where(
     np.where(probabilidade >= corte_medio_atual, "medio", "baixo"),
 )
 sub["risco_faixa"] = faixa
-sub["ano_alvo_previsao"] = 2026
+sub["ano_alvo_previsao"] = ANO_ALVO
 
-print("\nDistribuicao de risco pra 2026 (modelo congelado, corte por percentil relativo):")
+print(f"\nDistribuicao de risco pra {ANO_ALVO} (modelo congelado, corte por percentil relativo):")
 print(sub["risco_faixa"].value_counts())
 print(f"(pra comparar: a mesma populacao com o corte ABSOLUTO antigo dava "
       f"{(probabilidade >= modelo['cortes_risco']['alto']).sum()} 'alto' = "
@@ -249,8 +264,8 @@ saida = sub.rename(columns={
     "ibge6", "media_cobertura", "variabilidade_cobertura", "tendencia_cobertura",
     "isolamento_similaridade", "nome_cluster", "risco_probabilidade", "risco_faixa", "ano_alvo_previsao",
 ]]
-saida.to_csv(f"{PROC}/features_causais_risco_2025.csv", index=False)
-print(f"\nSalvo: data/processed/features_causais_risco_2025.csv ({len(saida)} municipios)")
+saida.to_csv(f"{PROC}/features_causais_risco_aplicacao.csv", index=False)
+print(f"\nSalvo: data/processed/features_causais_risco_aplicacao.csv ({len(saida)} municipios)")
 print("(nomes de coluna seguem a convencao de clusters_municipios_mvp.csv de proposito,")
 print(" pra backend/main.py so trocar o caminho do arquivo sem mudar a logica)")
 
@@ -262,11 +277,13 @@ with open(f"{PROC}/cortes_risco_percentil.json", "w", encoding="utf-8") as f:
             "Corte por percentil relativo (mesmo principio do percentil_isolamento "
             "do Dia 5), nao probabilidade absoluta fixa -- ver CLAUDE.md."
         ),
+        "ano_base": T,
+        "ano_alvo_previsao": ANO_ALVO,
         "percentil_alto": round(percentil_alto, 2),
         "percentil_medio": round(percentil_medio, 2),
         "derivado_de": "cortes_risco absolutos de modelo_risco.json, aplicados a clusters_municipios_mvp.csv (2014-2023)",
         "corte_absoluto_atual_alto": round(corte_alto_atual, 4),
         "corte_absoluto_atual_medio": round(corte_medio_atual, 4),
-        "populacao_referencia": "features_causais_risco_2025.csv (T=2025)",
+        "populacao_referencia": f"features_causais_risco_aplicacao.csv (T={T})",
     }, f, ensure_ascii=False, indent=2)
 print("Salvo: data/processed/cortes_risco_percentil.json (auditoria da calibracao)")

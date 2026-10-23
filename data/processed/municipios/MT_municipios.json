@@ -5,7 +5,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 77.3,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.6728,
+      "risco_probabilidade": 0.6694,
       "risco_faixa": "alto"
     },
     "510020": {
@@ -13,7 +13,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.4,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5173,
+      "risco_probabilidade": 0.5073,
       "risco_faixa": "baixo"
     },
     "510025": {
@@ -21,7 +21,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.0,
       "tendencia": -1.9,
-      "risco_probabilidade": 0.4926,
+      "risco_probabilidade": 0.5027,
       "risco_faixa": "baixo"
     },
     "510030": {
@@ -29,7 +29,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.8,
       "tendencia": -0.2,
-      "risco_probabilidade": 0.5777,
+      "risco_probabilidade": 0.5675,
       "risco_faixa": "medio"
     },
     "510035": {
@@ -37,7 +37,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 74.2,
       "tendencia": -1.7,
-      "risco_probabilidade": 0.4898,
+      "risco_probabilidade": 0.4609,
       "risco_faixa": "baixo"
     },
     "510040": {
@@ -45,7 +45,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 82.1,
       "tendencia": 0.4,
-      "risco_probabilidade": 0.558,
+      "risco_probabilidade": 0.5538,
       "risco_faixa": "medio"
     },
     "510050": {
@@ -53,7 +53,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 78.8,
       "tendencia": -2.5,
-      "risco_probabilidade": 0.4201,
+      "risco_probabilidade": 0.4598,
       "risco_faixa": "baixo"
     },
     "510060": {
@@ -61,7 +61,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.9,
       "tendencia": -0.0,
-      "risco_probabilidade": 0.5091,
+      "risco_probabilidade": 0.5056,
       "risco_faixa": "baixo"
     },
     "510080": {
@@ -69,7 +69,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.4,
       "tendencia": 0.7,
-      "risco_probabilidade": 0.5626,
+      "risco_probabilidade": 0.5553,
       "risco_faixa": "medio"
     },
     "510100": {
@@ -77,7 +77,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.8,
       "tendencia": 0.2,
-      "risco_probabilidade": 0.579,
+      "risco_probabilidade": 0.575,
       "risco_faixa": "medio"
     },
     "510120": {
@@ -85,7 +85,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.4,
       "tendencia": 0.9,
-      "risco_probabilidade": 0.5335,
+      "risco_probabilidade": 0.5326,
       "risco_faixa": "baixo"
     },
     "510125": {
@@ -93,7 +93,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.3,
       "tendencia": -0.3,
-      "risco_probabilidade": 0.5087,
+      "risco_probabilidade": 0.5072,
       "risco_faixa": "baixo"
     },
     "510130": {
@@ -101,7 +101,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.2,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5652,
+      "risco_probabilidade": 0.5564,
       "risco_faixa": "medio"
     },
     "510140": {
@@ -109,7 +109,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.1,
       "tendencia": -0.8,
-      "risco_probabilidade": 0.5187,
+      "risco_probabilidade": 0.5204,
       "risco_faixa": "baixo"
     },
     "510160": {
@@ -125,7 +125,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.2,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5553,
+      "risco_probabilidade": 0.5486,
       "risco_faixa": "medio"
     },
     "510180": {
@@ -133,15 +133,15 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 74.3,
       "tendencia": 1.4,
-      "risco_probabilidade": 0.5594,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.5436,
+      "risco_faixa": "baixo"
     },
     "510185": {
       "nome": "Bom Jesus do Araguaia",
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.5,
       "tendencia": 2.4,
-      "risco_probabilidade": 0.6098,
+      "risco_probabilidade": 0.607,
       "risco_faixa": "medio"
     },
     "510190": {
@@ -149,7 +149,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.4,
       "tendencia": -0.9,
-      "risco_probabilidade": 0.4612,
+      "risco_probabilidade": 0.4791,
       "risco_faixa": "baixo"
     },
     "510250": {
@@ -157,7 +157,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 80.6,
       "tendencia": -3.0,
-      "risco_probabilidade": 0.37,
+      "risco_probabilidade": 0.3614,
       "risco_faixa": "baixo"
     },
     "510260": {
@@ -165,15 +165,15 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 75.4,
       "tendencia": 0.7,
-      "risco_probabilidade": 0.68,
-      "risco_faixa": "alto"
+      "risco_probabilidade": 0.5206,
+      "risco_faixa": "baixo"
     },
     "510263": {
       "nome": "Campo Novo do Parecis",
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.0,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.5205,
+      "risco_probabilidade": 0.5151,
       "risco_faixa": "baixo"
     },
     "510267": {
@@ -181,7 +181,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 95.4,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.5181,
+      "risco_probabilidade": 0.5088,
       "risco_faixa": "baixo"
     },
     "510268": {
@@ -189,7 +189,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.9,
       "tendencia": -1.3,
-      "risco_probabilidade": 0.5508,
+      "risco_probabilidade": 0.5547,
       "risco_faixa": "medio"
     },
     "510269": {
@@ -197,7 +197,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 70.0,
       "tendencia": 0.9,
-      "risco_probabilidade": 0.5691,
+      "risco_probabilidade": 0.5854,
       "risco_faixa": "medio"
     },
     "510270": {
@@ -205,7 +205,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.7,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.5331,
+      "risco_probabilidade": 0.5231,
       "risco_faixa": "baixo"
     },
     "510279": {
@@ -213,7 +213,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.0,
       "tendencia": 1.9,
-      "risco_probabilidade": 0.6115,
+      "risco_probabilidade": 0.5976,
       "risco_faixa": "medio"
     },
     "510285": {
@@ -221,7 +221,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 84.0,
       "tendencia": -1.7,
-      "risco_probabilidade": 0.4905,
+      "risco_probabilidade": 0.4935,
       "risco_faixa": "baixo"
     },
     "510300": {
@@ -229,7 +229,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 71.0,
       "tendencia": 2.6,
-      "risco_probabilidade": 0.7299,
+      "risco_probabilidade": 0.7255,
       "risco_faixa": "alto"
     },
     "510305": {
@@ -237,7 +237,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.2,
       "tendencia": -1.7,
-      "risco_probabilidade": 0.5802,
+      "risco_probabilidade": 0.5879,
       "risco_faixa": "medio"
     },
     "510310": {
@@ -245,15 +245,15 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.9,
       "tendencia": 0.9,
-      "risco_probabilidade": 0.5508,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.5433,
+      "risco_faixa": "baixo"
     },
     "510320": {
       "nome": "Colíder",
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.7,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.5366,
+      "risco_probabilidade": 0.5307,
       "risco_faixa": "baixo"
     },
     "510325": {
@@ -261,7 +261,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 84.1,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.5209,
+      "risco_probabilidade": 0.5247,
       "risco_faixa": "baixo"
     },
     "510330": {
@@ -269,7 +269,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 82.1,
       "tendencia": -1.4,
-      "risco_probabilidade": 0.4802,
+      "risco_probabilidade": 0.492,
       "risco_faixa": "baixo"
     },
     "510335": {
@@ -277,7 +277,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.7,
       "tendencia": -1.9,
-      "risco_probabilidade": 0.5321,
+      "risco_probabilidade": 0.5438,
       "risco_faixa": "baixo"
     },
     "510336": {
@@ -285,7 +285,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.3,
       "tendencia": 1.6,
-      "risco_probabilidade": 0.5708,
+      "risco_probabilidade": 0.5657,
       "risco_faixa": "medio"
     },
     "510337": {
@@ -293,7 +293,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.2,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.5614,
+      "risco_probabilidade": 0.5567,
       "risco_faixa": "medio"
     },
     "510340": {
@@ -301,7 +301,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 84.7,
       "tendencia": -2.1,
-      "risco_probabilidade": 0.4196,
+      "risco_probabilidade": 0.4227,
       "risco_faixa": "baixo"
     },
     "510343": {
@@ -309,7 +309,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.3,
       "tendencia": 1.8,
-      "risco_probabilidade": 0.6121,
+      "risco_probabilidade": 0.6098,
       "risco_faixa": "medio"
     },
     "510345": {
@@ -317,15 +317,15 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 83.9,
       "tendencia": 0.4,
-      "risco_probabilidade": 0.6363,
-      "risco_faixa": "alto"
+      "risco_probabilidade": 0.6193,
+      "risco_faixa": "medio"
     },
     "510350": {
       "nome": "Diamantino",
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 81.4,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.5429,
+      "risco_probabilidade": 0.5385,
       "risco_faixa": "baixo"
     },
     "510360": {
@@ -333,7 +333,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.5,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.5402,
+      "risco_probabilidade": 0.5282,
       "risco_faixa": "baixo"
     },
     "510370": {
@@ -341,7 +341,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.7,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.5778,
+      "risco_probabilidade": 0.571,
       "risco_faixa": "medio"
     },
     "510380": {
@@ -349,7 +349,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 74.9,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.6918,
+      "risco_probabilidade": 0.7002,
       "risco_faixa": "alto"
     },
     "510385": {
@@ -357,7 +357,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 76.2,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.6261,
+      "risco_probabilidade": 0.6349,
       "risco_faixa": "alto"
     },
     "510390": {
@@ -365,7 +365,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 63.8,
       "tendencia": -8.1,
-      "risco_probabilidade": 0.3307,
+      "risco_probabilidade": 0.3072,
       "risco_faixa": "baixo"
     },
     "510395": {
@@ -373,7 +373,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.5,
       "tendencia": -0.0,
-      "risco_probabilidade": 0.5746,
+      "risco_probabilidade": 0.5748,
       "risco_faixa": "medio"
     },
     "510410": {
@@ -381,7 +381,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.0,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.5069,
+      "risco_probabilidade": 0.5012,
       "risco_faixa": "baixo"
     },
     "510420": {
@@ -389,7 +389,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.0,
       "tendencia": -0.7,
-      "risco_probabilidade": 0.5405,
+      "risco_probabilidade": 0.5327,
       "risco_faixa": "baixo"
     },
     "510450": {
@@ -397,7 +397,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.4,
       "tendencia": 0.8,
-      "risco_probabilidade": 0.5971,
+      "risco_probabilidade": 0.6028,
       "risco_faixa": "medio"
     },
     "510452": {
@@ -405,7 +405,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.0,
       "tendencia": -0.2,
-      "risco_probabilidade": 0.5522,
+      "risco_probabilidade": 0.5513,
       "risco_faixa": "medio"
     },
     "510454": {
@@ -413,7 +413,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.4,
       "tendencia": 0.9,
-      "risco_probabilidade": 0.5824,
+      "risco_probabilidade": 0.5707,
       "risco_faixa": "medio"
     },
     "510455": {
@@ -421,7 +421,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.7,
       "tendencia": 1.2,
-      "risco_probabilidade": 0.5963,
+      "risco_probabilidade": 0.5808,
       "risco_faixa": "medio"
     },
     "510460": {
@@ -429,7 +429,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.5,
       "tendencia": -0.9,
-      "risco_probabilidade": 0.5844,
+      "risco_probabilidade": 0.5782,
       "risco_faixa": "medio"
     },
     "510480": {
@@ -437,7 +437,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 84.1,
       "tendencia": 2.6,
-      "risco_probabilidade": 0.591,
+      "risco_probabilidade": 0.5774,
       "risco_faixa": "medio"
     },
     "510490": {
@@ -445,7 +445,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 76.8,
       "tendencia": 1.3,
-      "risco_probabilidade": 0.6386,
+      "risco_probabilidade": 0.6246,
       "risco_faixa": "alto"
     },
     "510500": {
@@ -453,7 +453,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 85.6,
       "tendencia": 2.7,
-      "risco_probabilidade": 0.7592,
+      "risco_probabilidade": 0.7513,
       "risco_faixa": "alto"
     },
     "510510": {
@@ -461,7 +461,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.1,
       "tendencia": -1.9,
-      "risco_probabilidade": 0.5291,
+      "risco_probabilidade": 0.5314,
       "risco_faixa": "baixo"
     },
     "510515": {
@@ -469,7 +469,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 95.3,
       "tendencia": -0.8,
-      "risco_probabilidade": 0.5369,
+      "risco_probabilidade": 0.5324,
       "risco_faixa": "baixo"
     },
     "510517": {
@@ -477,7 +477,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.5,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.5746,
+      "risco_probabilidade": 0.5731,
       "risco_faixa": "medio"
     },
     "510520": {
@@ -485,7 +485,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.6,
       "tendencia": 1.5,
-      "risco_probabilidade": 0.567,
+      "risco_probabilidade": 0.5542,
       "risco_faixa": "medio"
     },
     "510523": {
@@ -493,7 +493,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 82.8,
       "tendencia": -1.9,
-      "risco_probabilidade": 0.5682,
+      "risco_probabilidade": 0.579,
       "risco_faixa": "medio"
     },
     "510525": {
@@ -501,7 +501,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.9,
       "tendencia": -1.3,
-      "risco_probabilidade": 0.5365,
+      "risco_probabilidade": 0.5315,
       "risco_faixa": "baixo"
     },
     "510530": {
@@ -509,7 +509,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.0,
       "tendencia": -0.6,
-      "risco_probabilidade": 0.5839,
+      "risco_probabilidade": 0.5715,
       "risco_faixa": "medio"
     },
     "510550": {
@@ -517,7 +517,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 77.1,
       "tendencia": -2.5,
-      "risco_probabilidade": 0.4286,
+      "risco_probabilidade": 0.4592,
       "risco_faixa": "baixo"
     },
     "510558": {
@@ -525,7 +525,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 81.1,
       "tendencia": -1.4,
-      "risco_probabilidade": 0.5183,
+      "risco_probabilidade": 0.5084,
       "risco_faixa": "baixo"
     },
     "510560": {
@@ -533,7 +533,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 84.7,
       "tendencia": -2.3,
-      "risco_probabilidade": 0.5928,
+      "risco_probabilidade": 0.5955,
       "risco_faixa": "medio"
     },
     "510562": {
@@ -541,7 +541,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.3,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.5197,
+      "risco_probabilidade": 0.5162,
       "risco_faixa": "baixo"
     },
     "510590": {
@@ -549,7 +549,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 78.2,
       "tendencia": -3.0,
-      "risco_probabilidade": 0.4884,
+      "risco_probabilidade": 0.4937,
       "risco_faixa": "baixo"
     },
     "510600": {
@@ -557,7 +557,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 82.3,
       "tendencia": -2.0,
-      "risco_probabilidade": 0.4962,
+      "risco_probabilidade": 0.4953,
       "risco_faixa": "baixo"
     },
     "510610": {
@@ -565,7 +565,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 84.2,
       "tendencia": 3.0,
-      "risco_probabilidade": 0.6123,
+      "risco_probabilidade": 0.5972,
       "risco_faixa": "medio"
     },
     "510615": {
@@ -573,7 +573,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.0,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.5726,
+      "risco_probabilidade": 0.5633,
       "risco_faixa": "medio"
     },
     "510617": {
@@ -581,7 +581,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 55.6,
       "tendencia": -3.4,
-      "risco_probabilidade": 0.5887,
+      "risco_probabilidade": 0.5654,
       "risco_faixa": "medio"
     },
     "510618": {
@@ -589,7 +589,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.7,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.5564,
+      "risco_probabilidade": 0.5529,
       "risco_faixa": "medio"
     },
     "510619": {
@@ -597,7 +597,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.5,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.5519,
+      "risco_probabilidade": 0.5603,
       "risco_faixa": "medio"
     },
     "510620": {
@@ -605,7 +605,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.1,
       "tendencia": 2.3,
-      "risco_probabilidade": 0.6325,
+      "risco_probabilidade": 0.6215,
       "risco_faixa": "alto"
     },
     "510621": {
@@ -613,7 +613,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 73.7,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.6821,
+      "risco_probabilidade": 0.6948,
       "risco_faixa": "alto"
     },
     "510622": {
@@ -621,7 +621,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.6,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5318,
+      "risco_probabilidade": 0.5267,
       "risco_faixa": "baixo"
     },
     "510623": {
@@ -629,7 +629,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.6,
       "tendencia": -2.4,
-      "risco_probabilidade": 0.5009,
+      "risco_probabilidade": 0.5081,
       "risco_faixa": "baixo"
     },
     "510624": {
@@ -637,7 +637,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 83.0,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.5696,
+      "risco_probabilidade": 0.5692,
       "risco_faixa": "medio"
     },
     "510625": {
@@ -645,7 +645,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 79.8,
       "tendencia": 4.4,
-      "risco_probabilidade": 0.6847,
+      "risco_probabilidade": 0.6801,
       "risco_faixa": "alto"
     },
     "510626": {
@@ -653,7 +653,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.5,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5634,
+      "risco_probabilidade": 0.5599,
       "risco_faixa": "medio"
     },
     "510627": {
@@ -661,7 +661,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.4,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.5004,
+      "risco_probabilidade": 0.4982,
       "risco_faixa": "baixo"
     },
     "510628": {
@@ -669,7 +669,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.4,
       "tendencia": 0.2,
-      "risco_probabilidade": 0.5812,
+      "risco_probabilidade": 0.574,
       "risco_faixa": "medio"
     },
     "510629": {
@@ -677,7 +677,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.3,
       "tendencia": 0.7,
-      "risco_probabilidade": 0.6026,
+      "risco_probabilidade": 0.6016,
       "risco_faixa": "medio"
     },
     "510630": {
@@ -685,15 +685,15 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 97.5,
       "tendencia": 0.8,
-      "risco_probabilidade": 0.5499,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.5396,
+      "risco_faixa": "baixo"
     },
     "510631": {
       "nome": "Novo Santo Antônio",
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 70.3,
       "tendencia": 3.2,
-      "risco_probabilidade": 0.7304,
+      "risco_probabilidade": 0.7411,
       "risco_faixa": "alto"
     },
     "510637": {
@@ -701,7 +701,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 61.4,
       "tendencia": -1.6,
-      "risco_probabilidade": 0.5938,
+      "risco_probabilidade": 0.608,
       "risco_faixa": "medio"
     },
     "510642": {
@@ -709,7 +709,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 77.7,
       "tendencia": -2.5,
-      "risco_probabilidade": 0.4965,
+      "risco_probabilidade": 0.4943,
       "risco_faixa": "baixo"
     },
     "510645": {
@@ -717,7 +717,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 96.1,
       "tendencia": -0.0,
-      "risco_probabilidade": 0.5602,
+      "risco_probabilidade": 0.549,
       "risco_faixa": "medio"
     },
     "510650": {
@@ -725,7 +725,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 70.5,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.6302,
+      "risco_probabilidade": 0.6231,
       "risco_faixa": "alto"
     },
     "510665": {
@@ -733,7 +733,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 79.5,
       "tendencia": 3.3,
-      "risco_probabilidade": 0.6613,
+      "risco_probabilidade": 0.6624,
       "risco_faixa": "alto"
     },
     "510670": {
@@ -741,7 +741,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 98.9,
       "tendencia": -0.2,
-      "risco_probabilidade": 0.5329,
+      "risco_probabilidade": 0.5294,
       "risco_faixa": "baixo"
     },
     "510675": {
@@ -749,7 +749,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.9,
       "tendencia": -0.7,
-      "risco_probabilidade": 0.5407,
+      "risco_probabilidade": 0.5414,
       "risco_faixa": "baixo"
     },
     "510677": {
@@ -757,7 +757,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 81.9,
       "tendencia": -0.2,
-      "risco_probabilidade": 0.5915,
+      "risco_probabilidade": 0.5791,
       "risco_faixa": "medio"
     },
     "510680": {
@@ -765,7 +765,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.1,
       "tendencia": 1.1,
-      "risco_probabilidade": 0.589,
+      "risco_probabilidade": 0.578,
       "risco_faixa": "medio"
     },
     "510682": {
@@ -773,7 +773,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.0,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.59,
+      "risco_probabilidade": 0.5856,
       "risco_faixa": "medio"
     },
     "510685": {
@@ -781,7 +781,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 71.5,
       "tendencia": -3.1,
-      "risco_probabilidade": 0.4318,
+      "risco_probabilidade": 0.4473,
       "risco_faixa": "baixo"
     },
     "510700": {
@@ -789,7 +789,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 74.1,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.4292,
+      "risco_probabilidade": 0.4108,
       "risco_faixa": "baixo"
     },
     "510704": {
@@ -797,7 +797,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.2,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.5065,
+      "risco_probabilidade": 0.4997,
       "risco_faixa": "baixo"
     },
     "510706": {
@@ -805,7 +805,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.5,
       "tendencia": -0.0,
-      "risco_probabilidade": 0.57,
+      "risco_probabilidade": 0.5631,
       "risco_faixa": "medio"
     },
     "510710": {
@@ -813,7 +813,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 91.3,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.5318,
+      "risco_probabilidade": 0.5245,
       "risco_faixa": "baixo"
     },
     "510715": {
@@ -821,7 +821,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.7,
       "tendencia": 0.1,
-      "risco_probabilidade": 0.5975,
+      "risco_probabilidade": 0.5894,
       "risco_faixa": "medio"
     },
     "510718": {
@@ -829,7 +829,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 72.5,
       "tendencia": 1.4,
-      "risco_probabilidade": 0.6627,
+      "risco_probabilidade": 0.6515,
       "risco_faixa": "alto"
     },
     "510719": {
@@ -837,7 +837,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 92.1,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.5638,
+      "risco_probabilidade": 0.5628,
       "risco_faixa": "medio"
     },
     "510720": {
@@ -845,7 +845,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 87.9,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.5837,
+      "risco_probabilidade": 0.5793,
       "risco_faixa": "medio"
     },
     "510724": {
@@ -853,7 +853,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 81.9,
       "tendencia": -2.7,
-      "risco_probabilidade": 0.5194,
+      "risco_probabilidade": 0.5246,
       "risco_faixa": "baixo"
     },
     "510726": {
@@ -861,7 +861,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 81.4,
       "tendencia": 1.5,
-      "risco_probabilidade": 0.7194,
+      "risco_probabilidade": 0.7085,
       "risco_faixa": "alto"
     },
     "510729": {
@@ -869,7 +869,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.7,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.5304,
+      "risco_probabilidade": 0.5232,
       "risco_faixa": "baixo"
     },
     "510730": {
@@ -877,7 +877,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.9,
       "tendencia": 0.8,
-      "risco_probabilidade": 0.6132,
+      "risco_probabilidade": 0.6085,
       "risco_faixa": "medio"
     },
     "510735": {
@@ -885,7 +885,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 74.5,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.4787,
+      "risco_probabilidade": 0.4911,
       "risco_faixa": "baixo"
     },
     "510740": {
@@ -893,7 +893,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.2,
       "tendencia": 0.1,
-      "risco_probabilidade": 0.5326,
+      "risco_probabilidade": 0.5217,
       "risco_faixa": "baixo"
     },
     "510757": {
@@ -901,7 +901,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 68.5,
       "tendencia": 1.4,
-      "risco_probabilidade": 0.4624,
+      "risco_probabilidade": 0.4653,
       "risco_faixa": "baixo"
     },
     "510760": {
@@ -909,7 +909,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 82.7,
       "tendencia": -1.7,
-      "risco_probabilidade": 0.483,
+      "risco_probabilidade": 0.4828,
       "risco_faixa": "baixo"
     },
     "510770": {
@@ -917,7 +917,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 81.4,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.6103,
+      "risco_probabilidade": 0.6154,
       "risco_faixa": "medio"
     },
     "510774": {
@@ -925,7 +925,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 74.7,
       "tendencia": 0.3,
-      "risco_probabilidade": 0.6131,
+      "risco_probabilidade": 0.6097,
       "risco_faixa": "medio"
     },
     "510775": {
@@ -933,7 +933,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.0,
       "tendencia": -0.4,
-      "risco_probabilidade": 0.5344,
+      "risco_probabilidade": 0.5279,
       "risco_faixa": "baixo"
     },
     "510776": {
@@ -941,7 +941,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 76.4,
       "tendencia": 1.6,
-      "risco_probabilidade": 0.7067,
+      "risco_probabilidade": 0.7072,
       "risco_faixa": "alto"
     },
     "510777": {
@@ -949,15 +949,15 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 68.5,
       "tendencia": -2.8,
-      "risco_probabilidade": 0.4753,
-      "risco_faixa": "baixo"
+      "risco_probabilidade": 0.6296,
+      "risco_faixa": "alto"
     },
     "510779": {
       "nome": "Santo Antônio do Leste",
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 85.0,
       "tendencia": -2.8,
-      "risco_probabilidade": 0.4526,
+      "risco_probabilidade": 0.4534,
       "risco_faixa": "baixo"
     },
     "510780": {
@@ -965,7 +965,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 60.6,
       "tendencia": 3.4,
-      "risco_probabilidade": 0.6799,
+      "risco_probabilidade": 0.6972,
       "risco_faixa": "alto"
     },
     "510785": {
@@ -973,15 +973,15 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 77.2,
       "tendencia": 0.3,
-      "risco_probabilidade": 0.6148,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.6235,
+      "risco_faixa": "alto"
     },
     "510787": {
       "nome": "Sapezal",
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.7,
       "tendencia": -1.3,
-      "risco_probabilidade": 0.5607,
+      "risco_probabilidade": 0.558,
       "risco_faixa": "medio"
     },
     "510788": {
@@ -989,7 +989,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 83.2,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.5839,
+      "risco_probabilidade": 0.5963,
       "risco_faixa": "medio"
     },
     "510790": {
@@ -997,7 +997,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.4,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.4967,
+      "risco_probabilidade": 0.4952,
       "risco_faixa": "baixo"
     },
     "510792": {
@@ -1005,7 +1005,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.6,
       "tendencia": -0.9,
-      "risco_probabilidade": 0.4807,
+      "risco_probabilidade": 0.4789,
       "risco_faixa": "baixo"
     },
     "510794": {
@@ -1013,7 +1013,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 86.4,
       "tendencia": 1.0,
-      "risco_probabilidade": 0.5707,
+      "risco_probabilidade": 0.5558,
       "risco_faixa": "medio"
     },
     "510795": {
@@ -1021,7 +1021,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 94.3,
       "tendencia": -0.8,
-      "risco_probabilidade": 0.5152,
+      "risco_probabilidade": 0.5131,
       "risco_faixa": "baixo"
     },
     "510800": {
@@ -1029,7 +1029,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.8,
       "tendencia": 1.7,
-      "risco_probabilidade": 0.566,
+      "risco_probabilidade": 0.5532,
       "risco_faixa": "medio"
     },
     "510805": {
@@ -1037,7 +1037,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 83.0,
       "tendencia": -4.7,
-      "risco_probabilidade": 0.4658,
+      "risco_probabilidade": 0.473,
       "risco_faixa": "baixo"
     },
     "510810": {
@@ -1045,7 +1045,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 77.3,
       "tendencia": -0.1,
-      "risco_probabilidade": 0.5228,
+      "risco_probabilidade": 0.5387,
       "risco_faixa": "baixo"
     },
     "510820": {
@@ -1053,7 +1053,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 88.9,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.6104,
+      "risco_probabilidade": 0.6013,
       "risco_faixa": "medio"
     },
     "510830": {
@@ -1061,7 +1061,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.6,
       "tendencia": -1.5,
-      "risco_probabilidade": 0.562,
+      "risco_probabilidade": 0.5637,
       "risco_faixa": "medio"
     },
     "510835": {
@@ -1069,7 +1069,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 77.3,
       "tendencia": 0.8,
-      "risco_probabilidade": 0.6611,
+      "risco_probabilidade": 0.6545,
       "risco_faixa": "alto"
     },
     "510840": {
@@ -1077,7 +1077,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 73.8,
       "tendencia": -1.1,
-      "risco_probabilidade": 0.4054,
+      "risco_probabilidade": 0.4089,
       "risco_faixa": "baixo"
     },
     "510850": {
@@ -1085,7 +1085,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 97.2,
       "tendencia": 0.5,
-      "risco_probabilidade": 0.5355,
+      "risco_probabilidade": 0.5293,
       "risco_faixa": "baixo"
     },
     "510860": {
@@ -1093,7 +1093,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 90.8,
       "tendencia": 0.6,
-      "risco_probabilidade": 0.6071,
+      "risco_probabilidade": 0.5959,
       "risco_faixa": "medio"
     },
     "510880": {
@@ -1101,7 +1101,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 89.7,
       "tendencia": 2.2,
-      "risco_probabilidade": 0.6638,
+      "risco_probabilidade": 0.6533,
       "risco_faixa": "alto"
     },
     "510885": {
@@ -1109,7 +1109,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 93.2,
       "tendencia": -0.2,
-      "risco_probabilidade": 0.5526,
+      "risco_probabilidade": 0.5518,
       "risco_faixa": "medio"
     },
     "510890": {
@@ -1117,7 +1117,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 85.8,
       "tendencia": -0.5,
-      "risco_probabilidade": 0.5881,
+      "risco_probabilidade": 0.5755,
       "risco_faixa": "medio"
     },
     "510895": {

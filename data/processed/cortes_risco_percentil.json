@@ -1,9 +1,11 @@
 {
   "metodologia": "Corte por percentil relativo (mesmo principio do percentil_isolamento do Dia 5), nao probabilidade absoluta fixa -- ver CLAUDE.md.",
+  "ano_base": 2026,
+  "ano_alvo_previsao": 2027,
   "percentil_alto": 81.13,
   "percentil_medio": 50.93,
   "derivado_de": "cortes_risco absolutos de modelo_risco.json, aplicados a clusters_municipios_mvp.csv (2014-2023)",
-  "corte_absoluto_atual_alto": 0.6209,
-  "corte_absoluto_atual_medio": 0.5489,
-  "populacao_referencia": "features_causais_risco_2025.csv (T=2025)"
+  "corte_absoluto_atual_alto": 0.6206,
+  "corte_absoluto_atual_medio": 0.5449,
+  "populacao_referencia": "features_causais_risco_aplicacao.csv (T=2026)"
 }

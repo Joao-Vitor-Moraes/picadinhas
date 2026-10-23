@@ -12,9 +12,9 @@ Fontes:
   - clusters_municipios_mvp.csv: roster de municipios (ibge6/uf/nome),
     cluster/media_cobertura/tendencia ("Perfil do municipio", Dia 4 --
     historico 2014-2023, NAO redefinido pelos anos novos).
-  - features_causais_risco_2025.csv: risco_probabilidade/risco_faixa,
-    ano-alvo ATUALIZADO pra 2026 (modelo congelado, so a feature mudou --
-    ver atualizar_features_risco_2025.py).
+  - features_causais_risco_aplicacao.csv: risco_probabilidade/risco_faixa,
+    ano-alvo = ano seguinte ao ultimo dado disponivel (modelo congelado, so a
+    feature mudou -- ver atualizar_features_risco_aplicacao.py).
   - cobertura_mvp_2014_2026.csv: a serie por (ibge6, ano, imunizante), com
     `fonte`/`ano_parcial`/meses_dado_* por ano -- viram campos no proprio
     JSON de saida (por ano, nao por vacina) pro frontend montar o selo de
@@ -37,7 +37,7 @@ CHAVE_VACINA = {
 }
 
 clusters = pd.read_csv(PROC / "clusters_municipios_mvp.csv", dtype={"ibge6": str})
-risco = pd.read_csv(PROC / "features_causais_risco_2025.csv", dtype={"ibge6": str})
+risco = pd.read_csv(PROC / "features_causais_risco_aplicacao.csv", dtype={"ibge6": str})
 mvp = pd.read_csv(PROC / "cobertura_mvp_2014_2026.csv", dtype={"ibge6": str, "imunizante": str}, low_memory=False)
 
 clusters = clusters.merge(risco[["ibge6", "risco_probabilidade", "risco_faixa"]], on="ibge6", how="left")

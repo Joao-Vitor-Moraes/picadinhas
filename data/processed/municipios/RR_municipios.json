@@ -5,7 +5,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 41.2,
       "tendencia": -7.1,
-      "risco_probabilidade": 0.177,
+      "risco_probabilidade": 0.1726,
       "risco_faixa": "baixo"
     },
     "140005": {
@@ -13,7 +13,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 41.2,
       "tendencia": -6.3,
-      "risco_probabilidade": 0.1512,
+      "risco_probabilidade": 0.1536,
       "risco_faixa": "baixo"
     },
     "140010": {
@@ -21,7 +21,7 @@
       "cluster": "Cobertura alta e estavel",
       "media_cobertura": 85.9,
       "tendencia": -2.3,
-      "risco_probabilidade": 0.4597,
+      "risco_probabilidade": 0.4617,
       "risco_faixa": "baixo"
     },
     "140015": {
@@ -29,7 +29,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 55.8,
       "tendencia": -3.7,
-      "risco_probabilidade": 0.3332,
+      "risco_probabilidade": 0.3428,
       "risco_faixa": "baixo"
     },
     "140017": {
@@ -37,7 +37,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 36.5,
       "tendencia": 0.9,
-      "risco_probabilidade": 0.3404,
+      "risco_probabilidade": 0.3544,
       "risco_faixa": "baixo"
     },
     "140020": {
@@ -45,7 +45,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 53.6,
       "tendencia": -1.0,
-      "risco_probabilidade": 0.4312,
+      "risco_probabilidade": 0.4307,
       "risco_faixa": "baixo"
     },
     "140023": {
@@ -53,7 +53,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 70.9,
       "tendencia": 2.1,
-      "risco_probabilidade": 0.6597,
+      "risco_probabilidade": 0.6446,
       "risco_faixa": "alto"
     },
     "140028": {
@@ -61,7 +61,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 56.5,
       "tendencia": -2.4,
-      "risco_probabilidade": 0.2686,
+      "risco_probabilidade": 0.2665,
       "risco_faixa": "baixo"
     },
     "140030": {
@@ -69,7 +69,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 55.3,
       "tendencia": 1.4,
-      "risco_probabilidade": 0.5242,
+      "risco_probabilidade": 0.5276,
       "risco_faixa": "baixo"
     },
     "140040": {
@@ -77,7 +77,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 45.2,
       "tendencia": -7.5,
-      "risco_probabilidade": 0.1985,
+      "risco_probabilidade": 0.2194,
       "risco_faixa": "baixo"
     },
     "140045": {
@@ -85,7 +85,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 69.4,
       "tendencia": -1.4,
-      "risco_probabilidade": 0.6412,
+      "risco_probabilidade": 0.6337,
       "risco_faixa": "alto"
     },
     "140047": {
@@ -93,15 +93,15 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 80.3,
       "tendencia": 0.3,
-      "risco_probabilidade": 0.5793,
-      "risco_faixa": "medio"
+      "risco_probabilidade": 0.493,
+      "risco_faixa": "baixo"
     },
     "140050": {
       "nome": "São João da Baliza",
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 71.2,
       "tendencia": 2.9,
-      "risco_probabilidade": 0.6641,
+      "risco_probabilidade": 0.6662,
       "risco_faixa": "alto"
     },
     "140060": {
@@ -109,7 +109,7 @@
       "cluster": "Cobertura baixa, em recuperacao",
       "media_cobertura": 68.8,
       "tendencia": 0.3,
-      "risco_probabilidade": 0.6578,
+      "risco_probabilidade": 0.6461,
       "risco_faixa": "alto"
     },
     "140070": {
@@ -117,7 +117,7 @@
       "cluster": "Cobertura em queda e instavel",
       "media_cobertura": 48.4,
       "tendencia": -8.6,
-      "risco_probabilidade": 0.133,
+      "risco_probabilidade": 0.1221,
       "risco_faixa": "baixo"
     }
   },

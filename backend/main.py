@@ -24,15 +24,15 @@ em vez de recalculado por request.
 
 Atualizacao (ano-alvo do risco, ver CLAUDE.md): o modelo continua o mesmo
 (nunca foi retreinado), mas a partir de agora as features de entrada vem de
-`features_causais_risco_2025.csv` (nao mais `clusters_municipios_mvp.csv`) —
-esse arquivo recalcula as mesmas features causais incluindo 2024/2025 reais
-(reconstruidos do PNI) e aplica o modelo congelado sobre T=2025, deslocando
-a previsao de "risco para 2024" (ja virou dado real, obsoleto como previsao)
-pra "risco de queda em 2026". Ver notebooks/atualizar_features_risco_2025.py.
+`features_causais_risco_aplicacao.csv` (nao mais `clusters_municipios_mvp.csv`) —
+esse arquivo recalcula as mesmas features causais incluindo os anos novos
+(reconstruidos do PNI) e aplica o modelo congelado sobre T = ultimo ano
+disponivel, deslocando o ano-alvo da previsao pra T+1 (ano-alvo de-hardcoded
+no Dia 8 -- avanca sozinho). Ver notebooks/atualizar_features_risco_aplicacao.py.
 
 Atualizacao (corte por percentil, ver CLAUDE.md): a faixa Alto/Medio/Baixo
 tambem NAO e mais calculada aqui — `calcular_risco` so LE a
-`risco_probabilidade`/`risco_faixa` ja prontas em `features_causais_risco_2025.csv`.
+`risco_probabilidade`/`risco_faixa` ja prontas em `features_causais_risco_aplicacao.csv`.
 O corte virou por percentil relativo a populacao inteira (mesmo principio do
 `percentil_isolamento` do Dia 5), entao so faz sentido calculado uma vez,
 sobre todos os municipios juntos (`np.percentile`) — reimplementar isso aqui
@@ -56,7 +56,7 @@ from fastapi.middleware.cors import CORSMiddleware
 DATA_DIR = Path(__file__).resolve().parent.parent / "data" / "processed"
 ARESTAS_CSV = DATA_DIR / "grafo_similaridade_arestas.csv"
 CLUSTERS_CSV = DATA_DIR / "clusters_municipios_mvp.csv"
-FEATURES_RISCO_CSV = DATA_DIR / "features_causais_risco_2025.csv"
+FEATURES_RISCO_CSV = DATA_DIR / "features_causais_risco_aplicacao.csv"
 MODELO_RISCO_JSON = DATA_DIR / "modelo_risco.json"
 
 # Preenchido no startup (ver lifespan abaixo) — cache em memoria da
@@ -95,7 +95,7 @@ def detectar_comunidades(grafo: nx.Graph) -> dict[str, int]:
 
 def calcular_risco(features_risco: pd.DataFrame) -> dict[str, dict]:
     # Le probabilidade/faixa JA calculados por
-    # notebooks/atualizar_features_risco_2025.py, em vez de recalcular aqui.
+    # notebooks/atualizar_features_risco_aplicacao.py, em vez de recalcular aqui.
     # Motivo: o corte Alto/Medio/Baixo e por PERCENTIL relativo a populacao
     # inteira (mesmo principio do percentil_isolamento do Dia 5 — ver
     # CLAUDE.md), entao so faz sentido calculado uma vez sobre TODOS os

@@ -20,6 +20,10 @@
   --good: #52a675;
   --high: #157347;
   --nodata: #e3dccc;
+  /* Dia 8 Parte 2: cinza do filtro de faixa, deliberadamente mais escuro/
+     dessaturado que --nodata -- "sem dado" e "fora do filtro" sao conceitos
+     diferentes e nao podem parecer a mesma cor no mapa. */
+  --muni-filtro-fora: #b7b2a3;
   --radius: 12px;
   --radius-sm: 7px;
   --serif: "Playfair Display", "Georgia", serif;
@@ -896,6 +900,9 @@ svg.map-svg {
   stroke: var(--accent-dark);
   stroke-width: 1.9;
 }
+.muni-path.fora-filtro {
+  opacity: 0.55;
+}
 
 .tooltip {
   position: absolute;
@@ -977,6 +984,54 @@ svg.map-svg {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   margin-bottom: 7px;
+}
+.legend-title-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.legend-clear {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--accent);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 7px;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.legend-clear:hover {
+  color: var(--accent-dark);
+}
+/* Dia 8 Parte 2: legenda vira filtro clicavel so na view de estado (ver
+   MapView.tsx, Legend) -- chip ativo ganha contorno/fundo na cor de destaque
+   do app; chip "apagado" (filtro ligado, mas essa faixa nao selecionada) some
+   um pouco pra guiar o olho pras faixas escolhidas, sem desaparecer de vez. */
+.legend-chip--toggle {
+  cursor: pointer;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 2px 7px 2px 3px;
+  margin: -2px -7px -2px -3px;
+  font: inherit;
+  text-align: left;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease,
+    opacity 0.12s ease;
+}
+.legend-chip--toggle:hover {
+  background: var(--surface-2);
+}
+.legend-chip--toggle.is-active {
+  border-color: var(--accent-light);
+  background: var(--accent-light);
+}
+.legend-chip--toggle.is-dimmed {
+  opacity: 0.45;
 }
 
 /* ---------- right stat column ---------- */
@@ -1182,6 +1237,18 @@ table.ranking td.num-col {
     sans-serif;
   font-weight: 600;
   font-size: 14px;
+}
+table.ranking tr.ranking-empty {
+  cursor: default;
+}
+table.ranking tr.ranking-empty:hover {
+  opacity: 1;
+}
+table.ranking tr.ranking-empty td {
+  color: var(--ink-faint);
+  font-style: italic;
+  text-align: center;
+  padding: 24px 0;
 }
 .uf-badge {
   display: flex;

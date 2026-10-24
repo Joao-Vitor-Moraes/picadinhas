@@ -12,7 +12,9 @@ import {
   colorFor,
   ehDadoEstimado,
   fmtPct,
+  statusWord,
 } from "../utils/format";
+import type { StatusWord } from "../utils/format";
 
 interface TooltipState {
   x: number;
@@ -32,7 +34,7 @@ export function MapView() {
   const ensureUF = useAppStore((s) => s.ensureUF);
   const setHoveredUf = useAppStore((s) => s.setHoveredUf);
   const serieNacional = useAppStore((s) => s.serieNacional);
-  const { vacina, ano } = useFiltros();
+  const { vacina, ano, faixasAtivas, toggleFaixa, limparFaixas } = useFiltros();
   const registroAno = serieNacional?.brasil[ano];
   const anoEstimado = ehDadoEstimado(registroAno?.fonte);
   const avisoVacinaMapa =
@@ -258,6 +260,12 @@ export function MapView() {
               const ibge6 = f.id.slice(0, 6);
               const rec = ufData.dados.series[ibge6]?.[ano]?.[vacina] ?? null;
               const v = rec?.cob ?? null;
+              // Filtro de faixa (Dia 8 Parte 2): municipio fora da(s) faixa(s)
+              // selecionada(s) fica acinzentado, nao escondido -- mantem o
+              // contexto geografico do estado. "Sem dado" (w nulo) tambem conta
+              // como fora de qualquer faixa escolhida.
+              const w = statusWord(v);
+              const foraFiltro = faixasAtivas.size > 0 && (!w || !faixasAtivas.has(w));
               return (
                 <path
                   key={f.id}
@@ -265,9 +273,9 @@ export function MapView() {
                     if (el) muniPathRefs.current.set(ibge6, el);
                     else muniPathRefs.current.delete(ibge6);
                   }}
-                  className={`muni-path${municipioIbge6 === ibge6 ? " is-selected" : ""}`}
+                  className={`muni-path${municipioIbge6 === ibge6 ? " is-selected" : ""}${foraFiltro ? " fora-filtro" : ""}`}
                   d={f.d}
-                  style={{ fill: colorFor(v) }}
+                  style={{ fill: foraFiltro ? "var(--muni-filtro-fora)" : colorFor(v) }}
                   onMouseMove={(e) =>
                     showTooltip(
                       e,
@@ -285,7 +293,7 @@ export function MapView() {
       </div>
 
       <Tooltip tooltip={tooltip} />
-      <Legend />
+      <Legend faixasAtivas={faixasAtivas} onToggle={toggleFaixa} onLimpar={limparFaixas} />
       <ZoomControls disableOut={zoom <= 1 && !municipioIbge6} onZoomIn={zoomIn} onZoomOut={zoomOut} />
     </div>
   );
@@ -302,27 +310,69 @@ function Tooltip({ tooltip }: { tooltip: TooltipState | null }) {
   );
 }
 
-const LEGEND_BANDS = [
-  { cor: "#B91C1C", label: "Crítico", range: `< ${CORTE_BAIXO}%` },
-  { cor: "#E8920D", label: "Baixa", range: `${CORTE_BAIXO}–${CORTE_MEDIO}%` },
-  { cor: "#52A675", label: "Próxima da meta", range: `${CORTE_MEDIO}–${CORTE_ALTO}%` },
-  { cor: "#157347", label: "Na meta", range: `${CORTE_ALTO}%+` },
+const LEGEND_BANDS: { cor: string; label: string; range: string; faixa: StatusWord }[] = [
+  { cor: "#B91C1C", label: "Crítico", range: `< ${CORTE_BAIXO}%`, faixa: "bad" },
+  { cor: "#E8920D", label: "Baixa", range: `${CORTE_BAIXO}–${CORTE_MEDIO}%`, faixa: "warn" },
+  { cor: "#52A675", label: "Próxima da meta", range: `${CORTE_MEDIO}–${CORTE_ALTO}%`, faixa: "near" },
+  { cor: "#157347", label: "Na meta", range: `${CORTE_ALTO}%+`, faixa: "ok" },
 ];
 
-function Legend() {
+// A legenda vira filtro clicavel (Dia 8 Parte 2, sugestao de amigo) so quando
+// recebe faixasAtivas/onToggle -- o mapa nacional continua chamando <Legend />
+// sem props (decisao do usuario: o filtro atua no mapa de estado + tabela de
+// municipios, nao no mapa nacional), entao a legenda la fica como sempre foi,
+// so leitura, sem virar botao.
+function Legend({
+  faixasAtivas,
+  onToggle,
+  onLimpar,
+}: {
+  faixasAtivas?: Set<StatusWord>;
+  onToggle?: (f: StatusWord) => void;
+  onLimpar?: () => void;
+}) {
+  const interativa = !!onToggle;
+  const temFiltro = interativa && (faixasAtivas?.size ?? 0) > 0;
+
   return (
     <div className="legend-bar">
-      <div className="legend-title">Cobertura</div>
+      <div className="legend-title-row">
+        <div className="legend-title">Cobertura</div>
+        {temFiltro && (
+          <button type="button" className="legend-clear" onClick={onLimpar}>
+            limpar
+          </button>
+        )}
+      </div>
       <div className="legend-chips">
-        {LEGEND_BANDS.map((b) => (
-          <div className="legend-chip" key={b.label}>
-            <span className="legend-dot" style={{ background: b.cor }} />
-            <span className="legend-chip-text">
-              <span className="legend-chip-label">{b.label}</span>
-              <span className="legend-chip-range">{b.range}</span>
-            </span>
-          </div>
-        ))}
+        {LEGEND_BANDS.map((b) => {
+          const ativo = faixasAtivas?.has(b.faixa) ?? false;
+          const dimmed = temFiltro && !ativo;
+          const conteudo = (
+            <>
+              <span className="legend-dot" style={{ background: b.cor }} />
+              <span className="legend-chip-text">
+                <span className="legend-chip-label">{b.label}</span>
+                <span className="legend-chip-range">{b.range}</span>
+              </span>
+            </>
+          );
+          return interativa ? (
+            <button
+              key={b.label}
+              type="button"
+              className={`legend-chip legend-chip--toggle${ativo ? " is-active" : ""}${dimmed ? " is-dimmed" : ""}`}
+              onClick={() => onToggle!(b.faixa)}
+              aria-pressed={ativo}
+            >
+              {conteudo}
+            </button>
+          ) : (
+            <div className="legend-chip" key={b.label}>
+              {conteudo}
+            </div>
+          );
+        })}
         <div className="legend-chip">
           <span className="legend-dot" style={{ background: "var(--nodata)" }} />
           <span className="legend-chip-text">

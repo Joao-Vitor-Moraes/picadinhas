@@ -12,7 +12,7 @@ export function RankingTable() {
   const resumoEstados = useAppStore((s) => s.resumoEstados);
   const ufCache = useAppStore((s) => s.ufCache);
   const serieNacional = useAppStore((s) => s.serieNacional);
-  const { vacina, ano } = useFiltros();
+  const { vacina, ano, faixasAtivas } = useFiltros();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -59,9 +59,18 @@ export function RankingTable() {
       .sort((a, b) => (b.v ?? -1) - (a.v ?? -1));
   }, [isNational, resumoEstados, uf, ufCache, ano, vacina]);
 
-  const filtered = rows.filter(
-    (r) => r.name.toLowerCase().includes(query.toLowerCase()) || r.code.toLowerCase().includes(query.toLowerCase()),
-  );
+  // Filtro de faixa de cobertura (Dia 8 Parte 2): so atua na tabela de
+  // municipios (view de estado), nao na tabela nacional de estados -- mesma
+  // decisao do mapa. Diferente do mapa (que acinzenta pra manter o contexto
+  // geografico), aqui "filtrar" e esconder a linha mesmo, que e o
+  // comportamento padrao de uma tabela filtravel.
+  const filtered = rows.filter((r) => {
+    const bate = r.name.toLowerCase().includes(query.toLowerCase()) || r.code.toLowerCase().includes(query.toLowerCase());
+    if (!bate) return false;
+    if (isNational || faixasAtivas.size === 0) return true;
+    const w = statusWord(r.v);
+    return !!w && faixasAtivas.has(w);
+  });
 
   function onRowClick(rota: string) {
     const search = searchParams.toString();
@@ -77,6 +86,7 @@ export function RankingTable() {
           <h2>{isNational ? "Todos os estados" : "Todos os municípios"}</h2>
           <p>
             {isNational ? "Cobertura média 2014–2023" : `Cobertura em ${ano}`} · clique numa linha pra ver no mapa
+            {!isNational && faixasAtivas.size > 0 && " · filtrado por faixa de cobertura"}
             {estimadoNaTabela && (
               <SeloFonte parcial={registroAno?.ano_parcial} avisoVacina={avisoVacinaTabela} />
             )}
@@ -118,6 +128,14 @@ export function RankingTable() {
           </tr>
         </thead>
         <tbody>
+          {filtered.length === 0 && (
+            <tr className="ranking-empty">
+              <td colSpan={isNational ? 4 : 4}>
+                Nenhum {isNational ? "estado" : "município"} encontrado
+                {!isNational && faixasAtivas.size > 0 ? " com esse filtro." : "."}
+              </td>
+            </tr>
+          )}
           {filtered.map((r) => {
             const w = statusWord(r.v);
             const selected = isNational ? uf === r.key : municipioIbge6 === r.key;

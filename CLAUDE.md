@@ -834,8 +834,8 @@ requisição após inatividade pode levar ~50s pra "acordar"); frontend
 pro domínio da Vercel. Testado de ponta a ponta no ar: mapa nacional,
 drill-down estado/município e painel de rede/grafo do município (a parte
 que depende do backend) sem erro no console. Fecha o MVP dos 7 dias. |
-Dia 8 Correção + sugestão de amigo 🔨 EM ANDAMENTO (planejamento abaixo) —
-duas frentes independentes:
+Dia 8 Correção + sugestão de amigo ✅ concluído (detalhes abaixo) — duas
+frentes independentes:
 
 **Parte 1 — risco: ano-alvo 2026 → 2027 + tirar o ano chumbado do código. ✅
 concluído (pipeline/deploy + Fase B, selo de estimativa na UI).**
@@ -968,8 +968,9 @@ risco mesmo assim (ver acima), mas com aviso explícito disso pro usuário.
   visualmente nesse ambiente local (depende do backend, que não roda aqui),
   mas o código segue o mesmo padrão já validado nos outros 3 pontos.
 
-**Parte 2 — filtro por faixa (%) de cobertura (sugestão de amigo).** Frontend
-puro, **zero mudança de dado/pipeline** — a cobertura e as faixas já existem.
+**Parte 2 — filtro por faixa (%) de cobertura (sugestão de amigo). ✅
+concluído.** Frontend puro, **zero mudança de dado/pipeline** — a cobertura e
+as faixas já existem.
 - Reaproveita as **4 faixas do semáforo** já definidas (`CORTE_BAIXO/MEDIO/ALTO`
   = 65/80/88 em `format.ts`): Crítico <65 / Baixa 65–80 / Próxima 80–88 / Na
   meta 88+. Não inventa corte novo. Chaves = as `StatusWord` existentes
@@ -983,7 +984,54 @@ puro, **zero mudança de dado/pipeline** — a cobertura e as faixas já existem
 - **URL como fonte de verdade**, seguindo o padrão de vacina/ano: query param
   (ex.: `?faixa=bad,warn`) com `replace:true`, via `useFiltros.ts`. Nenhuma
   faixa marcada = tudo visível (comportamento atual preservado).
-- **Pontos a implementar:** estado de `faixa` no `useFiltros`; `Legend`
+- **Pontos implementados:** estado de `faixa` no `useFiltros`; `Legend`
   interativa; `muni-path` com fill acinzentado quando fora da seleção;
   `RankingTable` filtra linhas pela faixa. Self-QA no Chrome em mobile e desktop
   (o app acabou de ganhar correções de responsividade — não regredir).
+- **`useFiltros.ts`**: `faixasAtivas` (um `Set<StatusWord>`, lido/escrito do
+  query param `?faixa=` separado por vírgula, ex. `bad,warn`) +
+  `toggleFaixa(f)` (liga/desliga uma faixa) + `limparFaixas()` (zera tudo de
+  uma vez). Nenhuma faixa marcada = sem o param na URL = tudo visível, igual
+  antes do filtro existir.
+- **Bug encontrado e corrigido durante o self-QA:** o botão "limpar" foi
+  implementado primeiro chamando `toggleFaixa` uma vez por faixa ativa (um
+  loop). Não funcionava — só a última chamada "vencia" (testado: com
+  `{warn, bad}` ativos, limpar deixava `warn` sozinho na URL). Causa: cada
+  chamada de `setSearchParams` nessa lib lê o `searchParams` do closure do
+  render atual, não encadeia com a chamada anterior disparada no mesmo
+  evento síncrono — então múltiplas chamadas na mesma função não se somam,
+  a última baseada no mesmo estado "velho" sobrescreve o efeito das
+  anteriores. Cliques individuais em momentos diferentes (cada um com
+  re-render entre eles) funcionam normalmente; só a sequência síncrona no
+  mesmo clique que não. Corrigido trocando o loop por `limparFaixas()`, uma
+  função dedicada que remove o param inteiro numa chamada só.
+- **`MapView.tsx` — `Legend`**: só vira filtro clicável quando recebe
+  `faixasAtivas`/`onToggle`/`onLimpar` como props — o mapa nacional continua
+  chamando `<Legend />` sem props (decisão: filtro não atua lá), então a
+  legenda nacional continua só leitura, sem virar botão. Chip ativo ganha
+  contorno/fundo na cor de destaque do app (`--accent-light`); chip "fora"
+  (filtro ligado, mas essa faixa não selecionada) perde opacidade pra guiar
+  o olho sem sumir de vez. "Sem dado" nunca é clicável (não é uma `StatusWord`
+  filtrável, fica de fora do escopo como decidido).
+- **Cor do "acinzentado" no mapa**: nova variável `--muni-filtro-fora`
+  (`#b7b2a3`), deliberadamente mais escura/dessaturada que `--nodata`
+  (`#e3dccc`, usada pra "sem dado") — são conceitos diferentes
+  ("fora do filtro" vs. "não temos esse dado") e não podiam acabar
+  parecendo a mesma cor no mapa. Município fora do filtro mantém o
+  `onClick`/navegação normais (só muda a cor) — continua clicável, só não
+  chama atenção.
+- **Tabela (`RankingTable.tsx`)**: diferente do mapa, aqui "filtrar" esconde
+  mesmo a linha (comportamento padrão de tabela filtrável, não precisa
+  manter contexto geográfico como o mapa) — só na view de município (tabela
+  nacional de estados não é afetada, mesma decisão do mapa). Subtítulo da
+  tabela ganha "· filtrado por faixa de cobertura" quando o filtro está
+  ativo. Adicionado também um estado vazio ("Nenhum município encontrado...")
+  pra quando filtro + busca não baterem com nada — não existia antes
+  (buscas sem resultado já podiam zerar a tabela, só não tinha mensagem).
+- Self-QA no Chrome (`vite preview` + Playwright) em desktop e mobile (390px):
+  legenda clicável com multi-seleção funcionando, mapa de estado acinzentando
+  corretamente (verificado contagem de municípios fora do filtro batendo
+  exatamente com as linhas da tabela filtrada), botão limpar zerando tudo de
+  uma vez após o fix, mapa nacional confirmado **sem** legenda clicável
+  (0 botões), estado vazio da tabela renderizando a mensagem certa, sem erro
+  de console em nenhum teste.

@@ -61,6 +61,30 @@ export function riscoCor(faixa: RiscoFaixa | null | undefined): string {
   return { baixo: "var(--good)", medio: "var(--low)", alto: "var(--crit)" }[faixa];
 }
 
+// Dia 8 Parte 1: a previsão de risco passou a usar o último ano DISPONÍVEL
+// como base (em vez de esperar o último ano CHEIO fechar — ver CLAUDE.md),
+// então o ano-base pode ser parcial. O ano-base é sempre
+// `ano_alvo_previsao - 1` (nunca fixo em "2026" — isso avança sozinho pros
+// próximos anos), e se ELE é parcial já está disponível em
+// `serieNacional.brasil[anoBase].ano_parcial` (mesmo campo que o selo de
+// cobertura já usa) — não precisa de nenhum dado novo gerado pelo pipeline.
+export function riscoBaseParcial(
+  anoAlvoPrevisao: number | null | undefined,
+  serieNacional: { brasil: Record<string, { ano_parcial: boolean }> } | null | undefined,
+): { anoBase: number; parcial: boolean } | null {
+  if (!anoAlvoPrevisao) return null;
+  const anoBase = anoAlvoPrevisao - 1;
+  const parcial = serieNacional?.brasil[String(anoBase)]?.ano_parcial ?? false;
+  return { anoBase, parcial };
+}
+
+export function textoSeloRiscoParcial(anoBase: number): string {
+  return (
+    `Como ${anoBase} ainda não terminou, essa previsão pode estar um ` +
+    "pouco mais alta do que a realidade."
+  );
+}
+
 // Selo de proveniência (Parte 2 da extensão pro PNI, ver CLAUDE.md): zero
 // jargão técnico visível (nada de "PNI", "SINASC" ou "dedup" no texto que o
 // usuário lê — só em comentário de código).

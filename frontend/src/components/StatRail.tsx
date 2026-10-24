@@ -5,7 +5,15 @@ import { CLUSTER_LABELS, VACINA_LABELS, type VacinaKey } from "../types/data";
 import { Chart } from "./Chart";
 import { RedeMunicipio } from "./RedeMunicipio";
 import { SeloFonte } from "./SeloFonte";
-import { AVISO_2026_POR_VACINA, ehDadoEstimado, fmtPct, riscoCor, riscoTexto } from "../utils/format";
+import {
+  AVISO_2026_POR_VACINA,
+  ehDadoEstimado,
+  fmtPct,
+  riscoBaseParcial,
+  riscoCor,
+  riscoTexto,
+  textoSeloRiscoParcial,
+} from "../utils/format";
 
 export function StatRail() {
   const { uf, municipioIbge6, view } = useRota();
@@ -85,13 +93,21 @@ function SelectionPanel({
         </div>
         {riscoResumo && (
           <div className="stat-block" style={{ marginTop: 20 }}>
-            <div className="stat-block-label">Risco alto para {riscoResumo.ano_alvo_previsao}</div>
+            <div className="stat-block-label">
+              Risco alto para {riscoResumo.ano_alvo_previsao}
+              {(() => {
+                const base = riscoBaseParcial(riscoResumo.ano_alvo_previsao, serieNacional);
+                return (
+                  base?.parcial && <SeloFonte textoBase={textoSeloRiscoParcial(base.anoBase)} />
+                );
+              })()}
+            </div>
             <div className="stat-num num" style={{ color: "var(--crit)", fontSize: 24 }}>
               {riscoResumo.n_alto.toLocaleString("pt-BR")}
             </div>
             <div className="stat-cap">
               Municípios que um modelo preditivo aponta como mais propensos a uma queda brusca de
-              cobertura, com base no histórico de cada um até o último ano completo disponível.
+              cobertura, com base no histórico de cada um até o último ano disponível.
             </div>
           </div>
         )}
@@ -127,7 +143,13 @@ function SelectionPanel({
           </div>
         </div>
         <div style={{ marginTop: 16 }}>
-          <div className="stat-block-label">Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}</div>
+          <div className="stat-block-label">
+            Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}
+            {(() => {
+              const base = riscoResumo && riscoBaseParcial(riscoResumo.ano_alvo_previsao, serieNacional);
+              return base?.parcial && <SeloFonte textoBase={textoSeloRiscoParcial(base.anoBase)} />;
+            })()}
+          </div>
           <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--crit)" }}>
             {estado.n_municipios_risco_alto} de {estado.n_municipios} municípios
           </div>
@@ -191,6 +213,10 @@ function SelectionPanel({
       <div style={{ marginTop: 16 }}>
         <div className="stat-block-label">
           Risco de queda em {riscoResumo?.ano_alvo_previsao ?? "breve"}
+          {(() => {
+            const base = riscoResumo && riscoBaseParcial(riscoResumo.ano_alvo_previsao, serieNacional);
+            return base?.parcial && <SeloFonte textoBase={textoSeloRiscoParcial(base.anoBase)} />;
+          })()}
         </div>
         <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
           <span className="display num" style={{ fontSize: 16, fontWeight: 700, color: riscoCor(meta.risco_faixa) }}>
@@ -202,7 +228,7 @@ function SelectionPanel({
         </div>
         <div className="stat-cap" style={{ marginTop: 4 }}>
           Estimativa de um modelo preditivo com base no histórico do município até o último ano
-          completo disponível — uma ferramenta de atenção, não uma certeza.
+          disponível — uma ferramenta de atenção, não uma certeza.
         </div>
       </div>
     </div>

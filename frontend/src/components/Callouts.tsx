@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { useAppStore } from "../store/useAppStore";
-import { fmtPct, statusWord, statusText } from "../utils/format";
+import { fmtPct, riscoBaseParcial, statusWord, statusText, textoSeloRiscoParcial } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
 import type { ResumoEstados } from "../types/data";
 
 // Callout contextual, so na visao nacional (ver CLAUDE.md, Dia 6 Parte 3 /
@@ -51,6 +52,8 @@ export function Callouts({ children }: { children: ReactNode }) {
   const brazilPaths = useAppStore((s) => s.brazilPaths);
   const hoveredUf = useAppStore((s) => s.hoveredUf);
   const riscoResumo = useAppStore((s) => s.riscoResumo);
+  const serieNacional = useAppStore((s) => s.serieNacional);
+  const riscoBase = riscoResumo ? riscoBaseParcial(riscoResumo.ano_alvo_previsao, serieNacional) : null;
   const stageRef = useRef<HTMLDivElement>(null);
   const [geo, setGeo] = useState<Geometria | null>(null);
 
@@ -135,7 +138,12 @@ export function Callouts({ children }: { children: ReactNode }) {
                 <strong>{callout.quedasBruscas.toLocaleString("pt-BR")} casos</strong>
               </div>
               <div className="callout-stat">
-                <span>Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}</span>
+                <span>
+                  Risco alto para {riscoResumo?.ano_alvo_previsao ?? "o próximo ano"}
+                  {riscoBase?.parcial && (
+                    <SeloFonte textoBase={textoSeloRiscoParcial(riscoBase.anoBase)} />
+                  )}
+                </span>
                 <strong className={callout.riscoAlto > 0 ? "bad" : undefined}>
                   {callout.riscoAlto.toLocaleString("pt-BR")} municípios
                 </strong>

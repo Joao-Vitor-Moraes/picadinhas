@@ -111,7 +111,7 @@ export function RankingTable() {
             <th className="num-col">Cobertura</th>
             <th>Situação</th>
             {!isNational && (
-              <th title="Risco de queda brusca estimado com base no histórico de cada município até o último ano completo disponível">
+              <th title="Risco de queda brusca estimado com base no histórico de cada município até o último ano disponível (pode ser um ano ainda incompleto)">
                 Risco
               </th>
             )}

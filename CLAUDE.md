@@ -800,7 +800,7 @@ Dicionário: data/raw/dicionario-dados-por-municipio.csv.
     `design-reference/template2.html` (protótipo histórico arquivado, não
     é servido pela app).
 
-## Roadmap (7 dias)
+## Roadmap (7 dias + extensões)
 Dia 1 Setup ✅ | Dia 2 Coleta ✅ |
 Dia 3 Limpeza & EDA ✅ concluído (Parte 1 filtragem segura + CSV limpo; Parte 2
 validações contra o dicionário; Parte 3 série temporal com grid completo
@@ -833,4 +833,157 @@ requisição após inatividade pode levar ~50s pra "acordar"); frontend
 (https://imuniza-brasil.vercel.app); `ALLOWED_ORIGINS` no Render liberado
 pro domínio da Vercel. Testado de ponta a ponta no ar: mapa nacional,
 drill-down estado/município e painel de rede/grafo do município (a parte
-que depende do backend) sem erro no console. Fecha o MVP dos 7 dias.
+que depende do backend) sem erro no console. Fecha o MVP dos 7 dias. |
+Dia 8 Correção + sugestão de amigo 🔨 EM ANDAMENTO (planejamento abaixo) —
+duas frentes independentes:
+
+**Parte 1 — risco: ano-alvo 2026 → 2027 + tirar o ano chumbado do código. ✅
+concluído (pipeline/deploy + Fase B, selo de estimativa na UI).**
+- **Decisão do usuário (ciente do trade-off): mostrar "risco 2027" AGORA, não
+  esperar 2026 fechar.** Reconfirmado depois de esclarecer a confusão
+  treino×aplicação (ver abaixo).
+- **Treino continua congelado, NADA é retreinado.** O modelo
+  (`modelo_risco.json`, regressão logística, coeficientes + padronização) foi
+  treinado uma única vez com **2014-2023** e não é tocado. O que muda ao longo
+  do tempo é só a **matéria-prima da aplicação**: as features causais passam a
+  ser computadas até **T=2026** (em vez de T=2025), e o modelo congelado é
+  aplicado sobre elas → previsão vira "queda em **2027**". (A confusão a
+  desfazer, registrada porque vai reaparecer: 2024/2025/2026 **nunca treinaram**
+  o modelo — entram só como ponto de aplicação / validação.)
+- **Custo aceito e explicitamente sinalizado na UI:** 2026 é **parcial** (8
+  meses de numerador, `ano_parcial=True` — confirmado no
+  `cobertura_mvp_2014_2026.csv`). O ponto final afundado (Tríplice ~64% etc.)
+  puxa a `tendencia_causal` de quase todo município pra baixo → **infla a
+  probabilidade absoluta** de risco (mesmo covariate shift do notebook05).
+  Amortecedor: o corte de faixa é por **percentil relativo** (top ~19% = alto),
+  então o *ranking relativo* (a faixa Alto/Médio/Baixo) se segura razoavelmente
+  mesmo com o viés; o que fica inflado e não-confiável é o **valor absoluto** da
+  probabilidade. Por isso a decisão veio junto com **selo de "estimativa"** no
+  card/badge de risco quando a base for ano parcial.
+- **Tirar o hardcode (a "correção" de fato que vale pra sempre):**
+  `notebooks/atualizar_features_risco_2025.py` hoje tem `T = 2025` e
+  `ano_alvo_previsao = 2026` escritos na mão (linhas 68/235) e o ano cravado no
+  nome do arquivo (`features_causais_risco_2025.csv`). Generalizar pra detectar
+  o ano automaticamente (**critério muda de "último ano CHEIO" pra "último ano
+  DISPONÍVEL"**, já que a decisão é usar o parcial; `T = max(ano)`,
+  `ano_alvo = T+1`), e parametrizar/renomear o CSV de saída pra não cravar ano
+  no nome. Objetivo: quando 2026 (depois 2027…) fechar, é só re-rodar e o alvo
+  avança sozinho, sem editar código.
+- **Downstream a re-rodar** (mesma cadeia de sempre, só apontando pro CSV novo):
+  `gerar_risco_municipios.py`, `gerar_resumo_estados.py` → `risco_resumo.json`
+  (`ano_alvo_previsao` → 2027), `municipios/{UF}_municipios.json`
+  (`risco_faixa`/`risco_probabilidade`), `cortes_risco_percentil.json`; backend
+  (`FEATURES_RISCO_CSV` em `backend/main.py`) aponta pro CSV novo. **Modelo de
+  cluster/perfil NÃO muda** (continua histórico 2014-2023, igual às extensões
+  anteriores) — só a série de risco estende.
+- **UI:** o rótulo de ano já é dinâmico (lê `riscoResumo.ano_alvo_previsao`),
+  então "2027" aparece sozinho. Falta **ligar o selo de estimativa** no
+  card/badge de risco quando `ano_alvo` tiver base parcial — distinto do
+  `SeloFonte` de cobertura que já existe (esse é sobre o dado de cobertura; o
+  novo é sobre a *previsão* de risco estar apoiada em ano incompleto).
+
+**Parte 1 — execução e resultado.** Rodado localmente (máquina do usuário, fora
+desta sessão) seguindo exatamente o plano acima.
+- **Checagem obrigatória passou:** 5.570 municípios elegíveis em T=2026 (igual
+  antes — a regra de >= 3 anos causais não exclui ninguém nesse dataset). Faixa
+  final: **Alto 1.051 (18,9%) · Médio 1.682 (30,2%) · Baixo 2.837 (50,9%)** —
+  **idêntica** à distribuição que 2026 já tinha. Isso não é coincidência: é a
+  assinatura esperada de um corte por percentil (top X% de uma população de
+  5.570 sempre dá a mesma contagem, não importa como os valores absolutos se
+  deslocaram). Contraprova: a mesma população com o corte ABSOLUTO antigo
+  (pré-correção do Dia "corte por percentil", ver acima) teria dado 1.879 Alto
+  = 33,7% — repetindo quase exatamente o "~35%" que já tinha sido corrigido
+  uma vez. A correção se provou de novo, num ano diferente.
+- **De-hardcode feito via rename, não só edição de valor** (opção escolhida
+  entre 3 apresentadas — "renomear CSV + script" venceu porque o nome do
+  arquivo cravado no ano é a mesma categoria de bug que o valor cravado no
+  código; deixar um dos dois sem generalizar deixaria o projeto inconsistente
+  pra próxima vez): `atualizar_features_risco_2025.py` →
+  `atualizar_features_risco_aplicacao.py`; `features_causais_risco_2025.csv` →
+  `features_causais_risco_aplicacao.csv`. `T` agora é `int(ano.max())` (não
+  mais cravado), `ano_alvo_previsao = T + 1`. Os 4 leitores
+  (`backend/main.py`, `gen_municipios_json.py`, `gerar_risco_municipios.py` —
+  que também tinha um `"ano_alvo_previsao": 2026` cravado à parte, na geração
+  do `risco_resumo.json`, igualmente corrigido pra ler do dado — e
+  `gerar_resumo_estados.py`) atualizados pro caminho novo.
+- **Commit `2954cd8`** (local do usuário, divergente do remoto na hora do
+  push — o commit local tinha sido feito em cima de uma base sem os 2 fixes
+  de mobile já commitados aqui nesta sessão — gerou merge automático
+  `a986a32`, sem conflito, nada perdido).
+- **Bug de infraestrutura encontrado e corrigido durante a verificação pós-
+  deploy (fora do escopo original da Parte 1, mas bloqueava o resultado):**
+  o push disparou um deploy tipo **Blueprint** no Render (não só o
+  "Auto-Deploy" de praxe) — e deploy Blueprint **re-sincroniza as env vars a
+  partir do `render.yaml`**. O `render.yaml` nunca tinha sido atualizado desde
+  o Dia 7: ainda tinha o literal placeholder
+  `"https://REPLACE-COM-O-DOMINIO-DA-VERCEL.vercel.app"` em `ALLOWED_ORIGINS`
+  (o valor real só existia, fora do controle de versão, configurado manualmente
+  no painel do Render). O Blueprint sync sobrescreveu o valor manual pelo
+  placeholder, quebrando CORS pro domínio real da Vercel — sintoma: painel de
+  Rede do município com "Failed to fetch" no site ao vivo, mesmo com o backend
+  saudável (`/docs` carregava normal — confirma que é bloqueio de CORS, não
+  backend fora do ar; requisição direta de navegador não passa pela checagem
+  de CORS, só chamada JS do site passa). Corrigido em dois passos: valor
+  correto setado direto no painel do Render (destrava na hora) + commit
+  `282db9f` gravando o domínio real no `render.yaml` (pra nenhum Blueprint
+  sync futuro voltar a quebrar isso). **Lição registrada:** qualquer env var
+  que façam parte do `render.yaml` precisa do valor real no arquivo — um
+  placeholder ali é uma bomba-relógio pro próximo deploy Blueprint.
+- Verificado no ar: card de risco mostrando **2027**, painel de Rede/grafo do
+  município carregando normal após o fix de CORS.
+
+**Parte 1 — Fase B (selo de estimativa na UI).** A base da previsão de 2027
+é 2026, que é ano **parcial** (8 meses) — decisão já tomada de mostrar o
+risco mesmo assim (ver acima), mas com aviso explícito disso pro usuário.
+- Reaproveita o `SeloFonte` já existente (selo de proveniência de cobertura)
+  em vez de criar um componente novo — motivo: a mecânica de abrir/fechar por
+  clique (já corrigida uma vez pro bug de hover-vs-click) é idêntica, só o
+  texto muda. `SeloFonte` ganhou uma prop opcional `textoBase` (default =
+  texto antigo de cobertura, preservando todo uso existente sem mudança).
+- `utils/format.ts` ganhou `riscoBaseParcial()` — deriva o ano-base
+  (`ano_alvo_previsao - 1`, nunca fixo) e se ele é parcial lendo
+  `serieNacional.brasil[anoBase].ano_parcial` (campo que o selo de cobertura
+  já usa) — **zero dado novo do pipeline**, só leitura do que já carrega no
+  boot — e `textoSeloRiscoParcial(anoBase)` com o texto (opção 3 escolhida
+  pelo usuário): "Como {ano} ainda não terminou, essa previsão pode estar um
+  pouco mais alta do que a realidade."
+- Badge "estimado" ligado nos 4 lugares que mostram o ano-alvo do risco —
+  `StatRail.tsx` (card nacional, card de estado, card de município),
+  `Callouts.tsx` (card de hover do mapa nacional) — condicionados a
+  `parcial === true`, então somem sozinhos quando 2026 fechar (sem editar
+  código de novo). `RedeMunicipio.tsx` (legenda do painel de rede) ganhou o
+  mesmo badge.
+- **Bug de texto corrigido de passagem** (achado ao revisar os 4 lugares):
+  a legenda de risco em `StatRail.tsx` (nacional e município) e
+  `RedeMunicipio.tsx` dizia "...com base no histórico até o último ano
+  **completo** disponível" — ficou factualmente errado desde que a Parte 1
+  passou a usar o último ano **disponível** (não mais só o cheio). Trocado
+  pra "...até o último ano disponível" nos 3 lugares + no `title` estático
+  da coluna de risco em `RankingTable.tsx` (esse não pode ter o badge
+  interativo — é atributo HTML `title`, não JSX — só o texto foi corrigido).
+- Self-QA no Chrome (`vite preview` + Playwright, local) em desktop e mobile:
+  badge abre/fecha com o texto certo nos 4 pontos, nenhuma quebra de layout
+  no card compacto do callout nem no card de município em viewport mobile
+  (390px), sem erro de console. Painel de Rede não deu pra validar
+  visualmente nesse ambiente local (depende do backend, que não roda aqui),
+  mas o código segue o mesmo padrão já validado nos outros 3 pontos.
+
+**Parte 2 — filtro por faixa (%) de cobertura (sugestão de amigo).** Frontend
+puro, **zero mudança de dado/pipeline** — a cobertura e as faixas já existem.
+- Reaproveita as **4 faixas do semáforo** já definidas (`CORTE_BAIXO/MEDIO/ALTO`
+  = 65/80/88 em `format.ts`): Crítico <65 / Baixa 65–80 / Próxima 80–88 / Na
+  meta 88+. Não inventa corte novo. Chaves = as `StatusWord` existentes
+  (`bad`/`warn`/`near`/`ok`).
+- **Decisões do usuário:** (a) atua no **mapa de estado + tabela de municípios**
+  (as views de drill-down; **não** no mapa nacional); (b) controle = **legenda
+  clicável** (`Legend` em `MapView.tsx` vira interativa — toggle de faixa,
+  **multi-seleção** permitida); (c) efeito no mapa = município fora da(s)
+  faixa(s) selecionada(s) fica **acinzentado** (não escondido), mantendo o
+  contexto geográfico.
+- **URL como fonte de verdade**, seguindo o padrão de vacina/ano: query param
+  (ex.: `?faixa=bad,warn`) com `replace:true`, via `useFiltros.ts`. Nenhuma
+  faixa marcada = tudo visível (comportamento atual preservado).
+- **Pontos a implementar:** estado de `faixa` no `useFiltros`; `Legend`
+  interativa; `muni-path` com fill acinzentado quando fora da seleção;
+  `RankingTable` filtra linhas pela faixa. Self-QA no Chrome em mobile e desktop
+  (o app acabou de ganhar correções de responsividade — não regredir).

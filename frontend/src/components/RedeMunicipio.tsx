@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAppStore } from "../store/useAppStore";
 import { useRota } from "../hooks/useRota";
+import { riscoBaseParcial, textoSeloRiscoParcial } from "../utils/format";
+import { SeloFonte } from "./SeloFonte";
 import type { RedeNo } from "../types/data";
 
 // Paleta categorica (ver skill de dataviz): so os 3 primeiros slots do tema
@@ -51,6 +53,8 @@ export function RedeMunicipio() {
   const redeError = useAppStore((s) => s.redeError);
   const ensureRede = useAppStore((s) => s.ensureRede);
   const riscoResumo = useAppStore((s) => s.riscoResumo);
+  const serieNacional = useAppStore((s) => s.serieNacional);
+  const riscoBase = riscoResumo ? riscoBaseParcial(riscoResumo.ano_alvo_previsao, serieNacional) : null;
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
 
   // Modo "explorar": deixa clicar num vizinho pra recentralizar o grafo
@@ -193,7 +197,8 @@ export function RedeMunicipio() {
             parecida com a deste ao longo dos anos. A cor mostra o grupo de
             comportamento; o tamanho e o anel mostram o risco previsto de queda
             brusca em {riscoResumo?.ano_alvo_previsao ?? "breve"} (estimativa com base no
-            histórico até o último ano completo disponível).
+            histórico até o último ano disponível)
+            {riscoBase?.parcial && <SeloFonte textoBase={textoSeloRiscoParcial(riscoBase.anoBase)} />}.
           </>
         ) : (
           <>Clique em um município vizinho pra ver os municípios parecidos com ele e continuar explorando.</>
